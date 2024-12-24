@@ -1,3 +1,5 @@
+-- https://github.com/nvim-neo-tree/neo-tree.nvim
+
 return {
 	"nvim-neo-tree/neo-tree.nvim",
 	branch = "v3.x",
@@ -18,6 +20,9 @@ return {
 			window = {
 				mappings = {
 					["n"] = { "add" },
+					["e"] = function()
+						vim.cmd.wincmd("p")
+					end,
 				},
 			},
 			filesystem = {
