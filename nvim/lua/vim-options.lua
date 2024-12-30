@@ -16,10 +16,10 @@ vim.cmd("set relativenumber")
 vim.cmd("set signcolumn=yes")
 
 -- Windows
-vim.keymap.set("n", "<leader>h", ":wincmd h<cr>")
-vim.keymap.set("n", "<leader>j", ":wincmd j<cr>")
-vim.keymap.set("n", "<leader>k", ":wincmd k<cr>")
-vim.keymap.set("n", "<leader>l", ":wincmd l<cr>")
+vim.keymap.set("n", "<c-h>", ":wincmd h<cr>")
+vim.keymap.set("n", "<c-j>", ":wincmd j<cr>")
+vim.keymap.set("n", "<c-k>", ":wincmd k<cr>")
+vim.keymap.set("n", "<c-l>", ":wincmd l<cr>")
 
 -- Tabs
 vim.keymap.set("n", "<leader>bh", ":-tabnext<cr>")

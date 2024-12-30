@@ -1,2 +1,4 @@
 font-family = "ComicCodeLigatures Nerd Font"
 theme = "catppuccin-mocha"
+background-opacity = 0.95
+macos-titlebar-style = hidden
