@@ -7,6 +7,7 @@ return {
 		"nvim-lua/plenary.nvim",
 		"nvim-tree/nvim-web-devicons",
 		"MunifTanjim/nui.nvim",
+		"kyazdani42/nvim-web-devicons",
 	},
 	config = function()
 		vim.fn.sign_define("DiagnosticSignError", { text = "🔴", texthl = "DiagnosticSignError" })
@@ -15,6 +16,14 @@ return {
 		vim.fn.sign_define("DiagnosticSignHint", { text = "💡", texthl = "DiagnosticSignHint" })
 
 		require("neo-tree").setup({
+			event_handlers = {
+				{
+					event = "file_open_requested",
+					handler = function()
+						vim.cmd("Neotree close")
+					end,
+				},
+			},
 			close_if_last_window = true,
 			popup_border_status = "rounded",
 			window = {
@@ -26,6 +35,16 @@ return {
 				},
 			},
 			filesystem = {
+				window = {
+					position = "float",
+					float = {
+						col = 2,
+						row = 2,
+						width = 50,
+						height = vim.o.lines - 2,
+						border = "rounded",
+					},
+				},
 				filtered_items = {
 					visible = true,
 					hide_dotfiles = false,
@@ -41,8 +60,13 @@ return {
 			},
 		})
 
-		vim.keymap.set("n", "<leader>e", ":Neotree filesystem reveal left<CR>")
-
-		require("neo-tree.command").execute({ toggle = true, dir = vim.loop.cwd() })
+		vim.keymap.set("n", "<leader>e", function()
+			require("neo-tree.command").execute({
+				action = "focus",
+				source = "filesystem",
+				position = "float",
+				reveal = true,
+			})
+		end, { silent = true })
 	end,
 }

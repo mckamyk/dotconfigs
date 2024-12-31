@@ -6,7 +6,7 @@ return {
 	config = function()
 		local null_ls = require("null-ls")
 		local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-		local utils = require("null-ls.utils")
+		local utils = require("null-ls.utils").make_conditional_utils()
 
 		null_ls.setup({
 			sources = {
@@ -15,7 +15,7 @@ return {
 				require("none-ls.diagnostics.eslint_d").with({
 					filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
 					condition = function()
-						return null_ls.utils.root_has_file({
+						return utils.root_has_file({
 							"eslint.config.js",
 							".eslintrc",
 							".eslintrc.js",
