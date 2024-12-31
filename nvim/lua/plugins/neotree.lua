@@ -25,26 +25,27 @@ return {
 				},
 			},
 			close_if_last_window = true,
-			popup_border_status = "rounded",
+			popup_border_style = "rounded",
 			window = {
+				position = "float",
+				border = {
+					style = "rounded",
+				},
+				popup = {
+					size = {
+						height = "90%",
+						width = "25%",
+					},
+					position = {
+						row = 4,
+						col = 4,
+					},
+				},
 				mappings = {
 					["n"] = { "add" },
-					["e"] = function()
-						vim.cmd.wincmd("p")
-					end,
 				},
 			},
 			filesystem = {
-				window = {
-					position = "float",
-					float = {
-						col = 2,
-						row = 2,
-						width = 50,
-						height = vim.o.lines - 2,
-						border = "rounded",
-					},
-				},
 				filtered_items = {
 					visible = true,
 					hide_dotfiles = false,
