@@ -9,6 +9,7 @@ return {
 		local utils = require("null-ls.utils").make_conditional_utils()
 
 		null_ls.setup({
+			debug = true,
 			sources = {
 				null_ls.builtins.formatting.prettier,
 				null_ls.builtins.formatting.stylua,
