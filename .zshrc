@@ -247,3 +247,11 @@ alias ls="ls --color"
 alias ..="cd .."
 alias ...="cd ../.."
 alias lg="lazygit"
+
+# pnpm
+export PNPM_HOME="/Users/mac/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
