@@ -8,23 +8,39 @@ return {
 		local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
 		local utils = require("null-ls.utils").make_conditional_utils()
 
+		local hasEslint = utils.root_has_file({
+			"eslint.config.js",
+			".eslintrc",
+			".eslintrc.js",
+			".eslintrc.cjs",
+			".eslintrc.yaml",
+			".eslintrc.yml",
+			".eslintrc.json",
+		})
+
+		local hasPrettier = utils.root_has_file({
+			".prettierrc",
+			".prettierrc.json",
+			".prettierrc.yml",
+			".prettierrc.yaml",
+			".prettierrc.js",
+			".prettierrc.cjs",
+			"prettier.config.js",
+			"prettier.config.cjs",
+		})
+
+		if not hasEslint and not hasPrettier then
+			vim.lsp.enable("biome")
+		end
+
 		null_ls.setup({
-			debug = true,
 			sources = {
 				null_ls.builtins.formatting.prettier,
 				null_ls.builtins.formatting.stylua,
 				require("none-ls.diagnostics.eslint_d").with({
 					filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
 					condition = function()
-						return utils.root_has_file({
-							"eslint.config.js",
-							".eslintrc",
-							".eslintrc.js",
-							".eslintrc.cjs",
-							".eslintrc.yaml",
-							".eslintrc.yml",
-							".eslintrc.json",
-						})
+						return hasEslint or hasPrettier
 					end,
 				}),
 			},
