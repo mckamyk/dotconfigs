@@ -256,3 +256,9 @@ case ":$PATH:" in
 esac
 # pnpm end
 #
+export PATH="/opt/homebrew/opt/postgresql@17/bin:$PATH"
+
+source <(fzf --zsh)
+eval $(thefuck --alias)
+
+alias ls=eza

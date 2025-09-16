@@ -7,32 +7,110 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
-  "inline_completions": {
-    "disabled_globs": [".env", ""]
-  },
-  "show_inline_completions": true,
-  "assistant": {
-    "default_model": {
-      "provider": "zed.dev",
-      "model": "claude-3-5-sonnet-latest"
-    },
-    "version": "2"
-  },
-  "tabs": {
-    "file_icons": true
-  },
-  "inlay_hints": {
-    "show_background": true
-  },
-  "soft_wrap": "none",
-  "vim_mode": true,
-  "theme": "Catppuccin Mocha",
-  "ui_font_family": "ComicCodeLigatures Nerd Font",
-  "buffer_font_family": "ComicCodeLigatures Nerd Font",
-  "ui_font_size": 16,
-  "buffer_font_size": 16,
-  "features": {
-    "inline_completion_provider": "supermaven"
-  },
-  "project_panel": {}
+	"icon_theme": "Catppuccin Frappé",
+	"ui_font_features": {
+		"calt": true
+	},
+	"languages": {
+		"TypeScript": {
+			"language_servers": ["vtsls", "!eslint"],
+			"formatter": {
+				"language_server": { "name": "biome" }
+			},
+			"code_actions_on_format": {
+				"source.fixAll.biome": true
+			},
+			"show_edit_predictions": false
+		},
+		"JavaScript": {
+			"language_servers": ["vtsls", "!eslint"],
+			"formatter": {
+				"language_server": { "name": "biome" }
+			},
+			"code_actions_on_format": {
+				"source.fixAll.biome": true,
+				"source.organizeImports.biome": true
+			},
+			"show_edit_predictions": false
+		},
+		"TSX": {
+			"language_servers": ["vtsls", "!eslint"],
+			"formatter": {
+				"language_server": { "name": "biome" }
+			},
+			"code_actions_on_format": {
+				"source.fixAll.biome": true
+			},
+			"show_edit_predictions": false
+		},
+		"JSON": {
+			"formatter": {
+				"language_server": { "name": "biome" }
+			}
+		},
+		"JSONC": {
+			"formatter": {
+				"language_server": { "name": "biome" }
+			}
+		},
+		"CSS": {
+			"formatter": {
+				"language_server": { "name": "biome" }
+			}
+		}
+	},
+	"lsp": {
+		"biome": {
+			"settings": {
+				"require_config_file": true
+			}
+		}
+	},
+	"edit_predictions": {
+		"mode": "eager",
+		"disabled_globs": [".env", ""]
+	},
+	"agent": {
+		"default_profile": "ask",
+		"always_allow_tool_actions": true,
+		"single_file_review": false,
+		"default_model": {
+			"provider": "x_ai",
+			"model": "grok-code-fast-1"
+		},
+		"button": false
+	},
+	"debugger": {
+		"button": false
+	},
+	"terminal": {
+		"button": false
+	},
+	"tabs": {
+		"activate_on_close": "neighbour",
+		"file_icons": true,
+		"git_status": true,
+		"show_diagnostics": "errors"
+	},
+	"git_panel": {
+		"button": false,
+		"dock": "right",
+		"sort_by_path": true
+	},
+	"relative_line_numbers": true,
+	"vim": {
+		"use_system_clipboard": "never",
+		"use_smartcase_find": true
+	},
+	"soft_wrap": "none",
+	"vim_mode": true,
+	"theme": {
+		"mode": "system",
+		"dark": "Catppuccin Mocha",
+		"light": "Catppuccin Latte"
+	},
+	"ui_font_family": "ComicCodeLigatures Nerd Font",
+	"buffer_font_family": "ComicCodeLigatures Nerd Font",
+	"ui_font_size": 16,
+	"buffer_font_size": 16
 }

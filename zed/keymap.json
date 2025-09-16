@@ -1,6 +1,6 @@
 [
   {
-    "context": "Editor && vim_mode == normal",
+    "context": "Editor && vim_mode == normal && mode == full",
     "bindings": {
       "space w": "workspace::Save",
       "space q": "pane::CloseActiveItem",
@@ -8,42 +8,87 @@
       "space a": "editor::ToggleCodeActions",
       "space t": "editor::Hover",
       "space n": "editor::GoToDiagnostic",
+      "space m": "editor::GoToPreviousDiagnostic",
       "space d": "diagnostics::Deploy",
       "space k s": "zed::OpenKeymap",
       "space r t": "editor::RestartLanguageServer",
 
+      "space A": "agent::ToggleFocus",
+
       // buffer
-      "space b o": "pane::CloseInactiveItems",
+      "space b o": "pane::CloseOtherItems",
       "space b l": "pane::CloseItemsToTheRight",
       "space b h": "pane::CloseItemsToTheLeft",
-      "space b n": "pane::ActivateNextItem",
-      "space b b": "pane::ActivatePrevItem",
+      "space h": "pane::ActivatePreviousItem",
+      "space l": "pane::ActivateNextItem",
+
+      "space b 1": ["pane::ActivateItem", 0],
+      "space b 2": ["pane::ActivateItem", 1],
+      "space b 3": ["pane::ActivateItem", 2],
+      "space b 4": ["pane::ActivateItem", 3],
+      "space b 5": ["pane::ActivateItem", 4],
+      "space b 6": ["pane::ActivateItem", 5],
+      "space b 7": ["pane::ActivateItem", 6],
+
+      // folding
+      "space f .": "editor::Fold",
+      "space f a": "editor::FoldAll",
+      "space f u .": "editor::UnfoldRecursive",
+      "space f u a": "editor::UnfoldAll",
 
       // pane
       "space e": "project_panel::ToggleFocus",
-      "space s": "pane::DeploySearch",
+      "space f g": "pane::DeploySearch",
+      "space z": "workspace::CloseAllDocks",
 
-      "space g f": "editor::OpenExcerpts",
-
-      "space z": "workspace::CloseAllDocks"
+      "space g g": "git_panel::ToggleFocus"
     }
   },
   {
     "context": "ProjectPanel && not_editing",
     "bindings": {
-      "space e": "project_panel::ToggleFocus",
+      "e": "editor::ToggleFocus",
+      "space e": "editor::ToggleFocus",
       "d": "project_panel::Delete",
       "r": "project_panel::Rename",
       "n": "project_panel::NewFile",
       "x": "project_panel::Cut",
       "p": "project_panel::Paste",
-      "c": "project_panel::Copy",
+      "y": "project_panel::Copy",
       "ctrl-u": "editor::PageUp",
       "ctrl-d": "editor::PageDown",
       "shift-c": "project_panel::CollapseAllEntries",
       "shift-j": "menu::SelectNext",
-      "shift-k": "menu::SelectPrev",
+      "shift-k": "menu::SelectPrevious",
       "shift-space": "menu::Cancel"
+    }
+  },
+  {
+    "context": "AgentPanel > Editor && vim_mode == normal",
+    "bindings": {
+      "e": "editor::ToggleFocus",
+      "space e": "editor::ToggleFocus",
+      "tab": "agent::ToggleProfileSelector",
+      "c": "agent::RemoveAllContext",
+      "n": "agent::RejectAll",
+      "y": "agent::KeepAll"
+    }
+  },
+  {
+    "context": "GitPanel && !(Editor)",
+    "bindings": {
+      "c": "git::Commit",
+      "a": "git::StageAll",
+      "u": "git::UnstageAll",
+      "b": "git::Branch",
+      "P": "git::Push",
+      "p": "git::Pull",
+      "f": "git::Fetch",
+      "d": "git::RestoreFile",
+      "s": "git::StashAll",
+      "S": "git::StashPop",
+      "D": "git::RestoreTrackedFiles",
+      "e": "editor::ToggleFocus"
     }
   }
 ]

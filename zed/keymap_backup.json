@@ -1,0 +1,47 @@
+[
+  {
+    "context": "Editor && vim_mode == normal",
+    "bindings": {
+      "space w": "workspace::Save",
+      "space q": "pane::CloseActiveItem",
+
+      "space a": "editor::ToggleCodeActions",
+      "space t": "editor::Hover",
+      "space n": "editor::GoToDiagnostic",
+      "space d": "diagnostics::Deploy",
+      "space k s": "zed::OpenKeymap",
+      "space r t": "editor::RestartLanguageServer",
+
+      // buffer
+      "space b o": "pane::CloseInactiveItems",
+      "space b L": "pane::CloseItemsToTheRight",
+      "space b H": "pane::CloseItemsToTheLeft",
+
+      // pane
+      "space e": "project_panel::ToggleFocus",
+      "space s": "pane::DeploySearch",
+
+      "space g f": "editor::OpenExcerpts",
+
+      "space z": "workspace::CloseAllDocks"
+    }
+  },
+  {
+    "context": "ProjectPanel && not_editing",
+    "bindings": {
+      "space e": "project_panel::ToggleFocus",
+      "d": "project_panel::Delete",
+      "r": "project_panel::Rename",
+      "n": "project_panel::NewFile",
+      "x": "project_panel::Cut",
+      "p": "project_panel::Paste",
+      "c": "project_panel::Copy",
+      "ctrl-u": "editor::PageUp",
+      "ctrl-d": "editor::PageDown",
+      "shift-c": "project_panel::CollapseAllEntries",
+      "shift-j": "menu::SelectNext",
+      "shift-k": "menu::SelectPrev",
+      "shift-space": "menu::Cancel"
+    }
+  }
+]
