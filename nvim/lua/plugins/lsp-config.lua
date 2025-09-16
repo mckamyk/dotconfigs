@@ -9,7 +9,7 @@ return {
 		"williamboman/mason-lspconfig.nvim",
 		config = function()
 			require("mason-lspconfig").setup({
-				ensure_installed = { "lua_ls", "ts_ls", "tailwindcss", "solidity" },
+				ensure_installed = { "lua_ls", "vtsls", "tailwindcss", "solidity", "biome" },
 			})
 		end,
 	},
@@ -18,11 +18,41 @@ return {
 		config = function()
 			local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
+			local function has_file(patterns)
+				for _, pattern in ipairs(patterns) do
+					if vim.fn.glob(pattern) ~= "" then
+						return true
+					end
+				end
+				return false
+			end
+
+			local hasEslint = has_file({
+				"eslint.config.js",
+				".eslintrc",
+				".eslintrc.js",
+				".eslintrc.cjs",
+				".eslintrc.yaml",
+				".eslintrc.yml",
+				".eslintrc.json",
+			})
+
+			local hasPrettier = has_file({
+				".prettierrc",
+				".prettierrc.json",
+				".prettierrc.yml",
+				".prettierrc.yaml",
+				".prettierrc.js",
+				".prettierrc.cjs",
+				"prettier.config.js",
+				"prettier.config.cjs",
+			})
+
 			local lspconfig = require("lspconfig")
 			lspconfig.lua_ls.setup({
 				capabilities = capabilities,
 			})
-			lspconfig.ts_ls.setup({
+			lspconfig.vtsls.setup({
 				capabilities = capabilities,
 			})
 			lspconfig.solidity.setup({
@@ -31,6 +61,12 @@ return {
 			lspconfig.gopls.setup({
 				capabilities = capabilities,
 			})
+
+			if not hasEslint and not hasPrettier then
+				lspconfig.biome.setup({
+					capabilities = capabilities,
+				})
+			end
 
 			vim.diagnostic.config({
 				signs = {
@@ -55,6 +91,7 @@ return {
 
 			vim.keymap.set("n", "<leader>n", vim.diagnostic.goto_next, {})
 			vim.keymap.set("n", "<leader>m", vim.diagnostic.goto_prev, {})
+			vim.keymap.set("n", "<leader>li", "<cmd>LspInfo<CR>", {})
 		end,
 	},
 }
