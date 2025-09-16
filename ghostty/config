@@ -1,4 +1,4 @@
-font-family = "ComicCodeLigatures Nerd Font"
+qfont-family = "ComicCodeLigatures Nerd Font"
 theme = light:Catppuccin Latte,dark:Catppuccin Macchiato
 background-opacity = 0.75
 background-blur = true
