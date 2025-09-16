@@ -48,6 +48,8 @@ return {
 				"prettier.config.cjs",
 			})
 
+			local hasBiome = has_file({ "biome.json" })
+
 			local lspconfig = require("lspconfig")
 			lspconfig.lua_ls.setup({
 				capabilities = capabilities,
@@ -55,6 +57,11 @@ return {
 			lspconfig.vtsls.setup({
 				capabilities = capabilities,
 			})
+			if hasBiome then
+				lspconfig.biome.setup({
+					capabilities = capabilities,
+				})
+			end
 			lspconfig.solidity.setup({
 				capabilities = capabilities,
 			})
@@ -62,11 +69,7 @@ return {
 				capabilities = capabilities,
 			})
 
-			if not hasEslint and not hasPrettier then
-				lspconfig.biome.setup({
-					capabilities = capabilities,
-				})
-			end
+
 
 			vim.diagnostic.config({
 				signs = {
