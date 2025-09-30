@@ -16,10 +16,12 @@ vim.cmd("set relativenumber")
 vim.cmd("set signcolumn=yes")
 
 -- Tabs
-vim.keymap.set("n", "<leader>bh", ":-tabnext<cr>")
-vim.keymap.set("n", "<leader>bl", ":+tabnext<cr>")
+vim.keymap.set("n", "<leader>h", ":-tabnext<cr>")
+vim.keymap.set("n", "<leader>l", ":+tabnext<cr>")
 vim.keymap.set("n", "<leader>bo", ":tabo<cr>")
 
 vim.keymap.set("n", "<leader>w", ":w<cr>")
 vim.keymap.set("n", "<leader>q", ":q<cr>")
 vim.keymap.set("n", "<leader>Q", ":qa<cr>")
+
+

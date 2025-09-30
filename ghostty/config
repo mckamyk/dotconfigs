@@ -1,6 +1,6 @@
-qfont-family = "ComicCodeLigatures Nerd Font"
+font-family = "ComicCodeLigatures Nerd Font"
 theme = light:Catppuccin Latte,dark:Catppuccin Macchiato
-background-opacity = 0.75
+background-opacity = 0.85
 background-blur = true
 macos-titlebar-style = tabs
 cursor-style = block

@@ -97,7 +97,7 @@ return {
 
 			vim.keymap.set("n", "<leader>n", vim.diagnostic.goto_next, {})
 			vim.keymap.set("n", "<leader>m", vim.diagnostic.goto_prev, {})
-			vim.keymap.set("n", "<leader>li", "<cmd>LspInfo<CR>", {})
+			vim.keymap.set("n", "<leader>si", "<cmd>LspInfo<CR>", {})
 		end,
 	},
 }

@@ -262,3 +262,4 @@ source <(fzf --zsh)
 eval $(thefuck --alias)
 
 alias ls=eza
+alias rw=railway
