@@ -9,7 +9,7 @@ return {
 		"williamboman/mason-lspconfig.nvim",
 		config = function()
 			require("mason-lspconfig").setup({
-				ensure_installed = { "lua_ls", "vtsls", "tailwindcss", "solidity", "biome", "jsonls" },
+				ensure_installed = { "lua_ls", "vtsls", "tailwindcss", "solidity", "biome", "jsonls", "taplo" },
 			})
 		end,
 	},
@@ -27,52 +27,44 @@ return {
 				return false
 			end
 
-			local hasEslint = has_file({
-				"eslint.config.js",
-				".eslintrc",
-				".eslintrc.js",
-				".eslintrc.cjs",
-				".eslintrc.yaml",
-				".eslintrc.yml",
-				".eslintrc.json",
-			})
-
-			local hasPrettier = has_file({
-				".prettierrc",
-				".prettierrc.json",
-				".prettierrc.yml",
-				".prettierrc.yaml",
-				".prettierrc.js",
-				".prettierrc.cjs",
-				"prettier.config.js",
-				"prettier.config.cjs",
-			})
-
 			local hasBiome = has_file({ "biome.json" })
 
-			local lspconfig = require("lspconfig")
-			lspconfig.lua_ls.setup({
+			vim.lsp.config('lua_ls', {
 				capabilities = capabilities,
 			})
-			lspconfig.vtsls.setup({
+			vim.lsp.enable('lua_ls')
+
+			vim.lsp.config('vtsls', {
 				capabilities = capabilities,
 			})
+			vim.lsp.enable('vtsls')
+
 			if hasBiome then
-				lspconfig.biome.setup({
+				vim.lsp.config('biome', {
 					capabilities = capabilities,
 				})
+				vim.lsp.enable('biome')
 			end
-			lspconfig.solidity.setup({
-				capabilities = capabilities,
-			})
-			lspconfig.gopls.setup({
-				capabilities = capabilities,
-			})
-			lspconfig.jsonls.setup({
-				capabilities = capabilities,
-			})
 
+			vim.lsp.config('solidity', {
+				capabilities = capabilities,
+			})
+			vim.lsp.enable('solidity')
 
+			vim.lsp.config('gopls', {
+				capabilities = capabilities,
+			})
+			vim.lsp.enable('gopls')
+
+			vim.lsp.config('jsonls', {
+				capabilities = capabilities,
+			})
+			vim.lsp.enable('jsonls')
+
+			vim.lsp.config('taplo', {
+				capabilities = capabilities,
+			})
+			vim.lsp.enable('taplo')
 
 			vim.diagnostic.config({
 				signs = {
