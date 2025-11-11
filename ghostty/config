@@ -4,7 +4,9 @@ background-opacity = 0.85
 background-blur = true
 macos-titlebar-style = tabs
 cursor-style = block
+shell-integration-features = no-cursor
 quick-terminal-size = 800px
+custom-shader = shaders/cursor_warp.glsl
 
 keybind = ctrl+s>r=reload_config
 
