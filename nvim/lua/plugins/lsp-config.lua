@@ -29,42 +29,67 @@ return {
 
 			local hasBiome = has_file({ "biome.json" })
 
+			local on_attach = function(client, bufnr)
+				-- Tailwind highlight setup
+				if client.name == "tailwindcss" then
+					require("tailwind-highlight").setup(client, bufnr, {
+						single_column = false,
+						debounce = 200,
+						mode = 'background',
+					})
+				end
+			end
+
 			vim.lsp.config('lua_ls', {
 				capabilities = capabilities,
+				on_attach = on_attach,
 			})
 			vim.lsp.enable('lua_ls')
 
 			vim.lsp.config('vtsls', {
 				capabilities = capabilities,
+				on_attach = on_attach,
 			})
 			vim.lsp.enable('vtsls')
 
 			if hasBiome then
 				vim.lsp.config('biome', {
 					capabilities = capabilities,
+					on_attach = on_attach,
 				})
 				vim.lsp.enable('biome')
 			end
 
 			vim.lsp.config('solidity', {
 				capabilities = capabilities,
+				on_attach = on_attach,
 			})
 			vim.lsp.enable('solidity')
 
 			vim.lsp.config('gopls', {
 				capabilities = capabilities,
+				on_attach = on_attach,
 			})
 			vim.lsp.enable('gopls')
 
 			vim.lsp.config('jsonls', {
 				capabilities = capabilities,
+				on_attach = on_attach,
 			})
 			vim.lsp.enable('jsonls')
 
 			vim.lsp.config('taplo', {
 				capabilities = capabilities,
+				on_attach = on_attach,
 			})
 			vim.lsp.enable('taplo')
+
+			-- Enable tailwindcss LSP
+			vim.lsp.config('tailwindcss', {
+				capabilities = capabilities,
+				on_attach = on_attach,
+			})
+			vim.lsp.enable('tailwindcss')
 
 			vim.diagnostic.config({
 				signs = {
