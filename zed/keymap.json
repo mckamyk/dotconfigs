@@ -69,7 +69,6 @@
       "e": "editor::ToggleFocus",
       "space e": "editor::ToggleFocus",
       "tab": "agent::ToggleProfileSelector",
-      "c": "agent::RemoveAllContext",
       "n": "agent::RejectAll",
       "y": "agent::KeepAll"
     }

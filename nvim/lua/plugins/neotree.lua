@@ -54,6 +54,10 @@ return {
 					enabled = true,
 				},
 			},
+			sources = {
+				"filesystem",
+				"document_symbols",
+			},
 			buffers = {
 				follow_current_file = {
 					enabled = true,
@@ -67,6 +71,14 @@ return {
 				source = "filesystem",
 				position = "float",
 				reveal = true,
+			})
+		end, { silent = true })
+
+		vim.keymap.set("n", "<leader>r", function()
+			require("neo-tree.command").execute({
+				action = "focus",
+				source = "document_symbols",
+				position = "float",
 			})
 		end, { silent = true })
 	end,

@@ -35,7 +35,10 @@ return {
 			require("opencode").prompt("@this")
 		end, vim.tbl_extend("force", opts, { desc = "OpenCode: Add to prompt" }))
 
-		vim.keymap.set({ "n", "t" }, "<leader>ot", function()
+		vim.keymap.set({ "n" }, "<leader>ot", function()
+			require("opencode").toggle()
+		end, vim.tbl_extend("force", opts, { desc = "OpenCode: Toggle terminal" }))
+		vim.keymap.set({ "t" }, "<C-o>t", function()
 			require("opencode").toggle()
 		end, vim.tbl_extend("force", opts, { desc = "OpenCode: Toggle terminal" }))
 

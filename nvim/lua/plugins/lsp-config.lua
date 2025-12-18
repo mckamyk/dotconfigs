@@ -8,8 +8,14 @@ return {
 	{
 		"williamboman/mason-lspconfig.nvim",
 		config = function()
+			local ensure_installed = { "lua_ls", "vtsls", "tailwindcss", "solidity", "biome", "jsonls", "taplo" }
+			-- Only ensure eslint is installed if oxlint is not configured
+			local hasOxlint = vim.fn.glob("*oxlintrc*") ~= "" or vim.fn.glob("oxlint.json") ~= ""
+			if not hasOxlint then
+				table.insert(ensure_installed, "eslint")
+			end
 			require("mason-lspconfig").setup({
-				ensure_installed = { "lua_ls", "vtsls", "tailwindcss", "solidity", "biome", "jsonls", "taplo" },
+				ensure_installed = ensure_installed,
 			})
 		end,
 	},
@@ -28,6 +34,7 @@ return {
 			end
 
 			local hasBiome = has_file({ "biome.json" })
+			local hasOxlint = has_file({ ".oxlintrc.json", ".oxlintrc.toml", ".oxlintrc.js", "oxlint.json" })
 
 			local on_attach = function(client, bufnr)
 				-- Tailwind highlight setup
@@ -38,6 +45,15 @@ return {
 						mode = 'background',
 					})
 				end
+
+				-- LSP keybindings
+				local opts = { buffer = bufnr }
+				
+				vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+				vim.keymap.set("n", "<leader>t", vim.lsp.buf.hover, opts)
+				vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+				vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+				vim.keymap.set("n", "<leader>a", vim.lsp.buf.code_action, opts)
 			end
 
 			vim.lsp.config('lua_ls', {
@@ -91,6 +107,15 @@ return {
 			})
 			vim.lsp.enable('tailwindcss')
 
+			-- Enable eslint LSP only if oxlint is not configured
+			if not hasOxlint then
+				vim.lsp.config('eslint', {
+					capabilities = capabilities,
+					on_attach = on_attach,
+				})
+				vim.lsp.enable('eslint')
+			end
+
 			vim.diagnostic.config({
 				signs = {
 					text = {
@@ -106,11 +131,7 @@ return {
 				},
 			})
 
-			vim.keymap.set("n", "K", vim.lsp.buf.hover, {})
-			vim.keymap.set("n", "<leader>t", vim.lsp.buf.hover, {})
-			vim.keymap.set("n", "gd", "<cmd>tab split | lua vim.lsp.buf.definition()<CR>", {})
-			vim.keymap.set("n", "gr", vim.lsp.buf.references, {})
-			vim.keymap.set("n", "<leader>a", vim.lsp.buf.code_action, {})
+			-- Diagnostic keybindings (global)
 
 			vim.keymap.set("n", "<leader>n", vim.diagnostic.goto_next, {})
 			vim.keymap.set("n", "<leader>m", vim.diagnostic.goto_prev, {})
