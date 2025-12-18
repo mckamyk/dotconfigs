@@ -42,13 +42,13 @@ return {
 					require("tailwind-highlight").setup(client, bufnr, {
 						single_column = false,
 						debounce = 200,
-						mode = 'background',
+						mode = "background",
 					})
 				end
 
 				-- LSP keybindings
 				local opts = { buffer = bufnr }
-				
+
 				vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
 				vim.keymap.set("n", "<leader>t", vim.lsp.buf.hover, opts)
 				vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
@@ -56,64 +56,115 @@ return {
 				vim.keymap.set("n", "<leader>a", vim.lsp.buf.code_action, opts)
 			end
 
-			vim.lsp.config('lua_ls', {
+			vim.lsp.config("lua_ls", {
 				capabilities = capabilities,
 				on_attach = on_attach,
 			})
-			vim.lsp.enable('lua_ls')
+			vim.lsp.enable("lua_ls")
 
-			vim.lsp.config('vtsls', {
+			vim.lsp.config("vtsls", {
 				capabilities = capabilities,
 				on_attach = on_attach,
 			})
-			vim.lsp.enable('vtsls')
+			vim.lsp.enable("vtsls")
 
 			if hasBiome then
-				vim.lsp.config('biome', {
+				vim.lsp.config("biome", {
 					capabilities = capabilities,
 					on_attach = on_attach,
 				})
-				vim.lsp.enable('biome')
+				vim.lsp.enable("biome")
 			end
 
-			vim.lsp.config('solidity', {
+			vim.lsp.config("solidity", {
 				capabilities = capabilities,
 				on_attach = on_attach,
 			})
-			vim.lsp.enable('solidity')
+			vim.lsp.enable("solidity")
 
-			vim.lsp.config('gopls', {
+			vim.lsp.config("gopls", {
 				capabilities = capabilities,
 				on_attach = on_attach,
 			})
-			vim.lsp.enable('gopls')
+			vim.lsp.enable("gopls")
 
-			vim.lsp.config('jsonls', {
+			vim.lsp.config("jsonls", {
 				capabilities = capabilities,
 				on_attach = on_attach,
 			})
-			vim.lsp.enable('jsonls')
+			vim.lsp.enable("jsonls")
 
-			vim.lsp.config('taplo', {
+			vim.lsp.config("taplo", {
 				capabilities = capabilities,
 				on_attach = on_attach,
 			})
-			vim.lsp.enable('taplo')
+			vim.lsp.enable("taplo")
 
 			-- Enable tailwindcss LSP
-			vim.lsp.config('tailwindcss', {
+			-- Helper to find Tailwind v4 CSS config file (contains @import "tailwindcss")
+			local function find_tw4_config(root)
+				local candidates = {
+					"packages/ui/src/globals.css", -- monorepo pattern
+					"src/styles.css",
+					"src/globals.css",
+					"src/app.css",
+					"app/globals.css",
+					"styles/globals.css",
+				}
+				for _, candidate in ipairs(candidates) do
+					local path = root .. "/" .. candidate
+					if vim.fn.filereadable(path) == 1 then
+						local content = vim.fn.readfile(path, "", 10)
+						for _, line in ipairs(content) do
+							if line:match('@import%s+["\']tailwindcss["\']') then
+								return candidate
+							end
+						end
+					end
+				end
+				return nil
+			end
+
+			vim.lsp.config("tailwindcss", {
 				capabilities = capabilities,
 				on_attach = on_attach,
+				root_dir = function(bufnr, on_dir)
+					local bufname = vim.api.nvim_buf_get_name(bufnr)
+					-- Try monorepo root first, then standard tailwind config
+					local root = vim.fs.root(bufname, { "pnpm-workspace.yaml", "turbo.json" })
+						or vim.fs.root(bufname, { "tailwind.config.js", "tailwind.config.ts", "postcss.config.js", "package.json" })
+					if root then
+						-- Store the tw4 config path for this root
+						local tw4_config = find_tw4_config(root)
+						if tw4_config then
+							vim.g.tailwind_v4_config = vim.g.tailwind_v4_config or {}
+							vim.g.tailwind_v4_config[root] = tw4_config
+						end
+						on_dir(root)
+					end
+				end,
+				settings = {
+					tailwindCSS = {
+						experimental = {},
+					},
+				},
+				on_init = function(client)
+					local root = client.root_dir
+					if root and vim.g.tailwind_v4_config and vim.g.tailwind_v4_config[root] then
+						client.settings.tailwindCSS.experimental.configFile = vim.g.tailwind_v4_config[root]
+					end
+					return true
+				end,
 			})
-			vim.lsp.enable('tailwindcss')
+			vim.lsp.enable("tailwindcss")
 
 			-- Enable eslint LSP only if oxlint is not configured
 			if not hasOxlint then
-				vim.lsp.config('eslint', {
+				vim.lsp.config("eslint", {
 					capabilities = capabilities,
 					on_attach = on_attach,
 				})
-				vim.lsp.enable('eslint')
+				vim.lsp.enable("eslint")
 			end
 
 			vim.diagnostic.config({
