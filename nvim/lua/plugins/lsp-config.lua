@@ -46,12 +46,36 @@ return {
 					})
 				end
 
+				local function goto_definition()
+					local params = vim.lsp.util.make_position_params(0, client.offset_encoding)
+					local result = vim.lsp.buf_request_sync(0, 'textDocument/definition', params, 5000)
+					if not result or vim.tbl_isempty(result) then return end
+					for _, res in pairs(result) do
+						if res.result then
+							local locations = vim.lsp.util.locations_to_items(res.result)
+							if not vim.tbl_isempty(locations) then
+								local location = locations[1]
+								local target_file = location.filename
+								local current_file = vim.fn.expand('%:p')
+								if target_file ~= current_file then
+									vim.cmd('tabnew')
+								end
+								local uri = location.uri or vim.uri_from_fname(location.filename)
+								local target_bufnr = vim.uri_to_bufnr(uri)
+								vim.api.nvim_win_set_buf(0, target_bufnr)
+								vim.api.nvim_win_set_cursor(0, {location.lnum, location.col - 1})
+								return
+							end
+						end
+					end
+				end
+
 				-- LSP keybindings
 				local opts = { buffer = bufnr }
 
 				vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
 				vim.keymap.set("n", "<leader>t", vim.lsp.buf.hover, opts)
-				vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+				vim.keymap.set("n", "gd", goto_definition, opts)
 				vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
 				vim.keymap.set("n", "<leader>a", vim.lsp.buf.code_action, opts)
 			end
