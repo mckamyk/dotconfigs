@@ -243,6 +243,8 @@ if [ "$funcstack[1]" = "_kubectl" ]; then
     _kubectl
 fi
 
+export TERM=xterm-256color
+
 alias ls="ls --color"
 alias ..="cd .."
 alias ...="cd ../.."
