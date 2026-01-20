@@ -24,7 +24,7 @@ return {
 				vim.cmd.colorscheme("catppuccin-latte")
 			end,
 			update_interval = 1000,
-			fallback = "catppuccin-latte",
+			fallback = "light",
 		},
 	},
 	-- Status line
@@ -81,4 +81,3 @@ return {
 		},
 	},
 }
-
