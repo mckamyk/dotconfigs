@@ -1,0 +1,9 @@
+# Example .nvim.local file
+# This file is ignored by git and allows per-project Neovim LSP configuration
+
+# Disable tailwindcss LSP for this project
+lsp.tailwindcss.enabled=false
+
+# You can also enable/disable other LSPs:
+# lsp.eslint.enabled=false
+# lsp.biome.enabled=true
