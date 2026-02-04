@@ -265,3 +265,8 @@ eval $(thefuck --alias)
 
 alias ls=eza
 alias rw=railway
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/mac/.lmstudio/bin"
+# End of LM Studio CLI section
+

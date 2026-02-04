@@ -1,3 +1,99 @@
+-- Shared config loader for .nvim.local
+local function get_project_root()
+  local bufname = vim.api.nvim_buf_get_name(0)
+  return vim.fs.root(bufname, { "pnpm-workspace.yaml", "turbo.json" })
+    or vim.fs.root(bufname, { "tailwind.config.js", "tailwind.config.ts", "postcss.config.js", "package.json" })
+end
+
+local function load_project_tools()
+  local root = get_project_root()
+  if not root then
+    return { has_config = false, tools = {} }
+  end
+
+  local config_file = root .. "/.nvim.local"
+  if vim.fn.filereadable(config_file) ~= 1 then
+    return { has_config = false, tools = {} }
+  end
+
+  local tools = {}
+  local lines = vim.fn.readfile(config_file)
+  for _, line in ipairs(lines) do
+    line = vim.trim(line)
+    if line ~= "" and not line:match("^#") then
+      tools[line] = true
+    end
+  end
+
+  return { has_config = true, tools = tools, root = root }
+end
+
+-- Cache the tools table for use across plugins
+local project_tools = load_project_tools()
+local has_config_file = project_tools.has_config
+local tools = project_tools.tools
+local project_root = project_tools.root
+
+-- Track if we've shown warnings this session
+local warning_shown = false
+
+-- Build formatters list from tools
+local function get_ts_formatters()
+  local formatters = {}
+
+  if tools.oxfmt then
+    table.insert(formatters, "oxfmt")
+  end
+
+  if tools.biome or (not has_config_file) then
+    table.insert(formatters, "biome-check")
+  end
+
+  if tools.prettier then
+    table.insert(formatters, "prettier")
+  end
+
+  return formatters
+end
+
+local ts_formatters = get_ts_formatters()
+
+-- Function to show warnings about multiple tools
+local function show_tool_warnings()
+  if warning_shown then
+    return
+  end
+
+  -- Check for multiple formatters
+  if #ts_formatters > 1 then
+    vim.notify(
+      "Multiple formatters selected: " .. table.concat(ts_formatters, ", ") .. ". Using first available.",
+      vim.log.levels.WARN
+    )
+  end
+
+  -- Check for multiple linters
+  local linters = {}
+  if tools.oxlint then
+    table.insert(linters, "oxlint")
+  end
+  if tools.biome or (not has_config_file) then
+    table.insert(linters, "biome")
+  end
+  if tools.eslint then
+    table.insert(linters, "eslint")
+  end
+
+  if #linters > 1 then
+    vim.notify(
+      "Multiple linters active: " .. table.concat(linters, ", ") .. ". Both will run.",
+      vim.log.levels.WARN
+    )
+  end
+
+  warning_shown = true
+end
+
 return {
   -- Syntax highlighting
   {
@@ -38,9 +134,6 @@ return {
         }, {
           { name = "buffer" },
         }),
-        formatting = {
-          format = require("tailwindcss-colorizer-cmp").formatter,
-        },
       })
     end,
   },
@@ -48,48 +141,19 @@ return {
   {
     "stevearc/conform.nvim",
     config = function()
-      local function has_file(patterns)
-        for _, pattern in ipairs(patterns) do
-          if vim.fn.glob(pattern) ~= "" then
-            return true
-          end
-        end
-        return false
-      end
-
-      local prettier_condition = function()
-        return has_file({
-          ".prettierrc",
-          ".prettierrc.json",
-          ".prettierrc.yml",
-          ".prettierrc.yaml",
-          ".prettierrc.js",
-          ".prettierrc.mjs",
-          ".prettierrc.cjs",
-          "prettier.config.js",
-          "prettier.config.cjs",
-        })
-      end
-
-      local biome_condition = function()
-        return has_file({ "biome.json" })
-      end
+      -- Set up autocmd to show warnings on TS/JS file open
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
+        callback = show_tool_warnings,
+      })
 
       require("conform").setup({
-        formatters = {
-          prettier = {
-            condition = prettier_condition,
-          },
-          ["biome-check"] = {
-            condition = biome_condition,
-          },
-        },
         formatters_by_ft = {
           lua = { "stylua" },
-          javascript = { "biome-check", "prettier" },
-          typescript = { "biome-check", "prettier" },
-          javascriptreact = { "biome-check", "prettier" },
-          typescriptreact = { "biome-check", "prettier" },
+          javascript = ts_formatters,
+          typescript = ts_formatters,
+          javascriptreact = ts_formatters,
+          typescriptreact = ts_formatters,
         },
         format_on_save = {
           lsp_fallback = true,
@@ -109,12 +173,27 @@ return {
   {
     "williamboman/mason-lspconfig.nvim",
     config = function()
-      local ensure_installed = { "lua_ls", "vtsls", "tailwindcss", "solidity", "biome", "jsonls", "taplo" }
-      -- Only ensure eslint is installed if oxlint is not configured
-      local hasOxlint = vim.fn.glob("*oxlintrc*") ~= "" or vim.fn.glob("oxlint.json") ~= ""
-      if not hasOxlint then
+      local ensure_installed = {
+        "lua_ls",
+        "vtsls",
+        "solidity",
+        "jsonls",
+        "taplo",
+        "gopls",
+      }
+
+      if tools.biome or (not has_config_file) then
+        table.insert(ensure_installed, "biome")
+      end
+
+      if tools.eslint then
         table.insert(ensure_installed, "eslint")
       end
+
+      if tools.tailwindcss then
+        table.insert(ensure_installed, "tailwindcss")
+      end
+
       require("mason-lspconfig").setup({
         ensure_installed = ensure_installed,
       })
@@ -124,67 +203,6 @@ return {
     "neovim/nvim-lspconfig",
     config = function()
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
-
-      local function has_file(patterns)
-        for _, pattern in ipairs(patterns) do
-          if vim.fn.glob(pattern) ~= "" then
-            return true
-          end
-        end
-        return false
-      end
-
-      local function load_project_config()
-        local bufname = vim.api.nvim_buf_get_name(0)
-        local root = vim.fs.root(bufname, { "pnpm-workspace.yaml", "turbo.json" })
-          or vim.fs.root(bufname, { "tailwind.config.js", "tailwind.config.ts", "postcss.config.js", "package.json" })
-        
-        if not root then
-          return {}
-        end
-
-        local config_file = root .. "/.nvim.local"
-        if vim.fn.filereadable(config_file) ~= 1 then
-          return {}
-        end
-
-        local config = {}
-        local lines = vim.fn.readfile(config_file)
-        for _, line in ipairs(lines) do
-          line = vim.trim(line)
-          if line ~= "" and not line:match("^#") then
-            local key, value = line:match("^([^=]+)=(.+)$")
-            if key and value then
-              local parts = {}
-              for part in key:gmatch("[^.]+") do
-                table.insert(parts, part)
-              end
-              
-              local current = config
-              for i = 1, #parts - 1 do
-                if not current[parts[i]] then
-                  current[parts[i]] = {}
-                end
-                current = current[parts[i]]
-              end
-              
-              if value == "true" then
-                value = true
-              elseif value == "false" then
-                value = false
-              elseif tonumber(value) then
-                value = tonumber(value)
-              end
-              
-              current[parts[#parts]] = value
-            end
-          end
-        end
-        return config
-      end
-
-      local hasBiome = has_file({ "biome.json" })
-      local hasOxlint = has_file({ ".oxlintrc.json", ".oxlintrc.toml", ".oxlintrc.js", "oxlint.json" })
 
       local on_attach = function(client, bufnr)
         -- Tailwind highlight setup
@@ -197,19 +215,26 @@ return {
         end
       end
 
-      vim.lsp.config("lua_ls", {
+      -- Always-on LSPs
+      local always_on_lsps = { "lua_ls", "vtsls", "solidity", "jsonls", "taplo" }
+      for _, lsp in ipairs(always_on_lsps) do
+        vim.lsp.config(lsp, {
+          capabilities = capabilities,
+          on_attach = on_attach,
+        })
+        vim.lsp.enable(lsp)
+      end
+
+      -- gopls - filetype-specific
+      vim.lsp.config("gopls", {
         capabilities = capabilities,
         on_attach = on_attach,
+        filetypes = { "go", "gomod", "gowork", "gotmpl" },
       })
-      vim.lsp.enable("lua_ls")
+      vim.lsp.enable("gopls")
 
-      vim.lsp.config("vtsls", {
-        capabilities = capabilities,
-        on_attach = on_attach,
-      })
-      vim.lsp.enable("vtsls")
-
-      if hasBiome then
+      -- Conditional TypeScript ecosystem LSPs
+      if tools.biome or (not has_config_file) then
         vim.lsp.config("biome", {
           capabilities = capabilities,
           on_attach = on_attach,
@@ -217,39 +242,19 @@ return {
         vim.lsp.enable("biome")
       end
 
-      vim.lsp.config("solidity", {
-        capabilities = capabilities,
-        on_attach = on_attach,
-      })
-      vim.lsp.enable("solidity")
+      if tools.eslint then
+        vim.lsp.config("eslint", {
+          capabilities = capabilities,
+          on_attach = on_attach,
+        })
+        vim.lsp.enable("eslint")
+      end
 
-      vim.lsp.config("gopls", {
-        capabilities = capabilities,
-        on_attach = on_attach,
-      })
-      vim.lsp.enable("gopls")
-
-      vim.lsp.config("jsonls", {
-        capabilities = capabilities,
-        on_attach = on_attach,
-      })
-      vim.lsp.enable("jsonls")
-
-      vim.lsp.config("taplo", {
-        capabilities = capabilities,
-        on_attach = on_attach,
-      })
-      vim.lsp.enable("taplo")
-
-      -- Enable tailwindcss LSP
-      local project_config = load_project_config()
-      local tailwind_enabled = project_config.lsp and project_config.lsp.tailwindcss and project_config.lsp.tailwindcss.enabled ~= false
-
-      if tailwind_enabled then
-        -- Helper to find Tailwind v4 CSS config file (contains @import "tailwindcss")
+      if tools.tailwindcss then
+        -- Helper to find Tailwind v4 CSS config file
         local function find_tw4_config(root)
           local candidates = {
-            "packages/ui/src/globals.css", -- monorepo pattern
+            "packages/ui/src/globals.css",
             "src/styles.css",
             "src/globals.css",
             "src/app.css",
@@ -275,11 +280,9 @@ return {
           on_attach = on_attach,
           root_dir = function(bufnr, on_dir)
             local bufname = vim.api.nvim_buf_get_name(bufnr)
-            -- Try monorepo root first, then standard tailwind config
             local root = vim.fs.root(bufname, { "pnpm-workspace.yaml", "turbo.json" })
               or vim.fs.root(bufname, { "tailwind.config.js", "tailwind.config.ts", "postcss.config.js", "package.json" })
             if root then
-              -- Store the tw4 config path for this root
               local tw4_config = find_tw4_config(root)
               if tw4_config then
                 vim.g.tailwind_v4_config = vim.g.tailwind_v4_config or {}
@@ -304,15 +307,6 @@ return {
         vim.lsp.enable("tailwindcss")
       end
 
-      -- Enable eslint LSP only if oxlint is not configured
-      if not hasOxlint then
-        vim.lsp.config("eslint", {
-          capabilities = capabilities,
-          on_attach = on_attach,
-        })
-        vim.lsp.enable("eslint")
-      end
-
       vim.diagnostic.config({
         signs = {
           text = {
@@ -332,24 +326,22 @@ return {
       neocodeium.setup()
     end,
   },
-  -- Tailwind tools
-  {
-    "roobert/tailwindcss-colorizer-cmp.nvim",
-    config = function()
-      require("tailwindcss-colorizer-cmp").setup({
-        color_square_width = 2,
-      })
-    end,
-  },
+  -- Tailwind tools - conditional
   {
     "princejoogie/tailwind-highlight.nvim",
+    cond = function()
+      return tools.tailwindcss
+    end,
     dependencies = {
       "neovim/nvim-lspconfig",
     },
   },
-  -- Linting
+  -- Linting - conditional
   {
     "soulsam480/nvim-oxlint",
+    cond = function()
+      return tools.oxlint
+    end,
     opts = {},
   },
   -- Auto pairs and autotag
