@@ -8,20 +8,5 @@ shell-integration-features = no-cursor
 quick-terminal-size = 800px
 custom-shader = shaders/cursor_warp.glsl
 
-# Send Cmd as Alt sequences for tmux
-keybind = cmd+h=text:\x1bh
-keybind = cmd+j=text:\x1bj
-keybind = cmd+k=text:\x1bk
-keybind = cmd+l=text:\x1bl
-
-keybind = cmd+left=csi:1;3D
-keybind = cmd+down=csi:1;3B
-keybind = cmd+up=csi:1;3A
-keybind = cmd+right=csi:1;3C
-
-keybind = cmd+ctrl+h=csi:1;7D
-keybind = cmd+ctrl+j=csi:1;7B
-keybind = cmd+ctrl+k=csi:1;7A
-keybind = cmd+ctrl+l=csi:1;7C
-
 keybind = global:cmd+'=toggle_quick_terminal
+keybind = cmd+h=text:\x1bh
