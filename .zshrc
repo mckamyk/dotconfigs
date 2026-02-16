@@ -270,3 +270,4 @@ alias rw=railway
 export PATH="$PATH:/Users/mac/.lmstudio/bin"
 # End of LM Studio CLI section
 
+export PATH="$PATH:/Users/mac/code/plexxd"

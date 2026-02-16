@@ -1,12 +1,19 @@
 -- Shared config loader for .nvim.local
-local function get_project_root()
+local M = {}
+
+function M.get_project_root()
   local bufname = vim.api.nvim_buf_get_name(0)
+  if bufname == "" then
+    -- Fallback to current working directory if no buffer is loaded
+    bufname = vim.fn.getcwd()
+  end
   return vim.fs.root(bufname, { "pnpm-workspace.yaml", "turbo.json" })
     or vim.fs.root(bufname, { "tailwind.config.js", "tailwind.config.ts", "postcss.config.js", "package.json" })
+    or vim.fn.getcwd() -- ultimate fallback
 end
 
-local function load_project_tools()
-  local root = get_project_root()
+function M.load_project_tools()
+  local root = M.get_project_root()
   if not root then
     return { has_config = false, tools = {} }
   end
@@ -28,17 +35,11 @@ local function load_project_tools()
   return { has_config = true, tools = tools, root = root }
 end
 
--- Cache the tools table for use across plugins
-local project_tools = load_project_tools()
-local has_config_file = project_tools.has_config
-local tools = project_tools.tools
-local project_root = project_tools.root
-
 -- Track if we've shown warnings this session
-local warning_shown = false
+M.warning_shown = false
 
 -- Build formatters list from tools
-local function get_ts_formatters()
+function M.get_ts_formatters(tools, has_config_file)
   local formatters = {}
 
   if tools.oxfmt then
@@ -56,11 +57,9 @@ local function get_ts_formatters()
   return formatters
 end
 
-local ts_formatters = get_ts_formatters()
-
 -- Function to show warnings about multiple tools
-local function show_tool_warnings()
-  if warning_shown then
+function M.show_tool_warnings(tools, has_config_file, ts_formatters)
+  if M.warning_shown then
     return
   end
 
@@ -91,9 +90,10 @@ local function show_tool_warnings()
     )
   end
 
-  warning_shown = true
+  M.warning_shown = true
 end
 
+-- Plugin definitions
 return {
   -- Syntax highlighting
   {
@@ -141,10 +141,18 @@ return {
   {
     "stevearc/conform.nvim",
     config = function()
+      -- Load project tools at config time (when a buffer is open)
+      local project_tools = M.load_project_tools()
+      local has_config_file = project_tools.has_config
+      local tools = project_tools.tools
+      local ts_formatters = M.get_ts_formatters(tools, has_config_file)
+
       -- Set up autocmd to show warnings on TS/JS file open
       vim.api.nvim_create_autocmd("FileType", {
         pattern = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
-        callback = show_tool_warnings,
+        callback = function()
+          M.show_tool_warnings(tools, has_config_file, ts_formatters)
+        end,
       })
 
       require("conform").setup({
@@ -173,6 +181,11 @@ return {
   {
     "williamboman/mason-lspconfig.nvim",
     config = function()
+      -- Load project tools at config time
+      local project_tools = M.load_project_tools()
+      local has_config_file = project_tools.has_config
+      local tools = project_tools.tools
+
       local ensure_installed = {
         "lua_ls",
         "vtsls",
@@ -202,6 +215,11 @@ return {
   {
     "neovim/nvim-lspconfig",
     config = function()
+      -- Load project tools at config time
+      local project_tools = M.load_project_tools()
+      local has_config_file = project_tools.has_config
+      local tools = project_tools.tools
+
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
       local on_attach = function(client, bufnr)
@@ -330,7 +348,8 @@ return {
   {
     "princejoogie/tailwind-highlight.nvim",
     cond = function()
-      return tools.tailwindcss
+      local project_tools = M.load_project_tools()
+      return project_tools.tools.tailwindcss
     end,
     dependencies = {
       "neovim/nvim-lspconfig",
@@ -340,7 +359,8 @@ return {
   {
     "soulsam480/nvim-oxlint",
     cond = function()
-      return tools.oxlint
+      local project_tools = M.load_project_tools()
+      return project_tools.tools.oxlint
     end,
     opts = {},
   },
