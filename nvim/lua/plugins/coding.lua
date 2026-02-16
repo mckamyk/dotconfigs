@@ -98,15 +98,21 @@ return {
   -- Syntax highlighting
   {
     "nvim-treesitter/nvim-treesitter",
+    branch = "main",
+    lazy = false,
     build = ":TSUpdate",
     config = function()
-      local config = require("nvim-treesitter.configs")
-      config.setup({
+      require("nvim-treesitter").setup({
         auto_install = true,
-        highlight = { enable = true },
-        indent = { enable = true },
       })
-    end
+      -- Enable highlighting via autocmd (main branch API)
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "*",
+        callback = function(args)
+          local ok = pcall(vim.treesitter.start, args.buf)
+        end,
+      })
+    end,
   },
   -- Auto completion
   {
@@ -192,7 +198,6 @@ return {
         "solidity",
         "jsonls",
         "taplo",
-        "gopls",
       }
 
       if tools.biome or (not has_config_file) then

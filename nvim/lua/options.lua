@@ -14,3 +14,10 @@ vim.cmd("set nu")
 vim.cmd("set cursorline")
 vim.cmd("set relativenumber")
 vim.cmd("set signcolumn=yes")
+
+-- Auto-reload files when changed externally
+vim.opt.autoread = true
+vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI", "FocusGained" }, {
+  pattern = "*",
+  command = "if mode() != 'c' | checktime | endif",
+})
