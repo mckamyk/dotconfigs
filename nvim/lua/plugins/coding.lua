@@ -15,24 +15,34 @@ end
 function M.load_project_tools()
   local root = M.get_project_root()
   if not root then
-    return { has_config = false, tools = {} }
+    return { has_config = false, tools = {}, theme = nil }
   end
 
   local config_file = root .. "/.nvim.local"
   if vim.fn.filereadable(config_file) ~= 1 then
-    return { has_config = false, tools = {} }
+    return { has_config = false, tools = {}, theme = nil }
   end
 
   local tools = {}
+  local theme = nil
   local lines = vim.fn.readfile(config_file)
   for _, line in ipairs(lines) do
     line = vim.trim(line)
     if line ~= "" and not line:match("^#") then
-      tools[line] = true
+      -- Check for theme=light or theme=dark
+      local theme_value = line:match("^theme=(.+)")
+      if theme_value and (theme_value == "light" or theme_value == "dark") then
+        theme = theme_value
+      elseif line == "light" or line == "dark" then
+        -- Also accept bare "light" or "dark" lines
+        theme = line
+      else
+        tools[line] = true
+      end
     end
   end
 
-  return { has_config = true, tools = tools, root = root }
+  return { has_config = true, tools = tools, root = root, theme = theme }
 end
 
 -- Track if we've shown warnings this session
