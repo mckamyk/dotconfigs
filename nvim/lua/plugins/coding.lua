@@ -228,7 +228,6 @@ return {
 
 			require("mason-lspconfig").setup({
 				ensure_installed = ensure_installed,
-				automatic_installation = true,
 			})
 		end,
 	},
@@ -264,23 +263,44 @@ return {
 			end
 
 			-- TypeScript LSP: tsgo (default) or vtsls (if .nvim.local has vtsls)
+			-- Always configure both, but only the enabled one will start via root_dir logic
 			local use_vtsls = tools.vtsls
 
-			if use_vtsls then
-				-- Use vtsls instead of tsgo
-				vim.lsp.config("vtsls", {
-					capabilities = capabilities,
-					on_attach = on_attach,
-				})
-				vim.lsp.enable("vtsls")
-			else
-				-- Use tsgo (TypeScript-Go) as default via nvim-lspconfig
-				vim.lsp.config("tsgo", {
-					capabilities = capabilities,
-					on_attach = on_attach,
-				})
-				vim.lsp.enable("tsgo")
-			end
+			-- Configure vtsls with conditional root_dir
+			vim.lsp.config("vtsls", {
+				capabilities = capabilities,
+				on_attach = on_attach,
+				root_dir = function(bufnr, on_dir)
+					-- Only start vtsls if enabled via .nvim.local
+					if use_vtsls then
+						local root = vim.fs.root(bufnr, { 'package.json', 'tsconfig.json', '.git' })
+						if root then
+							on_dir(root)
+						end
+					end
+					-- If not enabled, don't call on_dir() - vtsls won't start
+				end,
+			})
+
+			-- Configure tsgo with conditional root_dir
+			vim.lsp.config("tsgo", {
+				capabilities = capabilities,
+				on_attach = on_attach,
+				root_dir = function(bufnr, on_dir)
+					-- Only start tsgo if vtsls is NOT enabled (tsgo is default)
+					if not use_vtsls then
+						local root = vim.fs.root(bufnr, { 'package.json', 'tsconfig.json', '.git' })
+						if root then
+							on_dir(root)
+						end
+					end
+					-- If vtsls is enabled, don't call on_dir() - tsgo won't start
+				end,
+			})
+
+			-- Enable both - only the appropriate one will actually start based on root_dir logic
+			vim.lsp.enable("vtsls")
+			vim.lsp.enable("tsgo")
 
 			-- gopls - filetype-specific
 			vim.lsp.config("gopls", {
