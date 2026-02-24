@@ -278,7 +278,7 @@ vtsls  # Use vtsls instead of default tsgo
 
 ## Document Version
 
-**Commit Hash**: `9256841b8134d82b1e2a69f558ef3b2f929e2a79`
+**Commit Hash**: `c8a7abad63ecfe9e38548dd5a5821adab0bef8de`
 
 ### How to Update This Document
 
@@ -291,7 +291,7 @@ To update AGENTS.md in the future:
 
 2. Compare changes since this document version:
    ```bash
-   git diff 9256841b8134d82b1e2a69f558ef3b2f929e2a79..HEAD -- lua/ init.lua
+   git diff c8a7abad63ecfe9e38548dd5a5821adab0bef8de..HEAD -- lua/ init.lua
    ```
 
 3. Review all plugin files and keymaps to identify changes:
