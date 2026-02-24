@@ -103,7 +103,8 @@ This document summarizes the reorganized Neovim configuration structure. The con
 - **tailwind-highlight.nvim** - Tailwind CSS color highlighting (conditional)
 - **nvim-oxlint** - oxlint integration (conditional)
 - **nvim-autopairs** - auto-close brackets (event: InsertEnter)
-- **nvim-ts-autotag** - auto-close/rename HTML tags
+  - **nvim-ts-autotag** - auto-close/rename HTML tags
+  - **nvim-tsgo** - TypeScript-Go LSP (default TypeScript LSP, replaces vtsls)
 
 **Conditional Loading via `.nvim.local`**:
 Project-level configuration file for tool selection:
@@ -116,6 +117,7 @@ prettier            # enable prettier formatter
 oxlint              # enable oxlint linter
 eslint              # enable eslint
 tailwindcss         # enable tailwindcss LSP + highlighting
+vtsls               # use vtsls instead of tsgo (default TypeScript LSP)
 ```
 
 **Formatter Priority** (format-on-save):
@@ -125,7 +127,9 @@ tailwindcss         # enable tailwindcss LSP + highlighting
 4. LSP fallback
 
 **LSP Servers**:
-- Always enabled: lua_ls, vtsls, solidity, jsonls, taplo
+- Always enabled: lua_ls, solidity, jsonls, taplo
+- Default TypeScript: tsgo (TypeScript-Go, via nvim-tsgo plugin)
+- Optional: vtsls (use `vtsls` in .nvim.local to switch from tsgo)
 - Conditional: biome, eslint, tailwindcss, gopls
 - Tailwind v4 CSS config detection (auto-detects @import 'tailwindcss')
 
@@ -138,7 +142,7 @@ tailwindcss         # enable tailwindcss LSP + highlighting
 **Plugins**:
 - **opencode.nvim** - OpenCode AI assistant
   - Dependencies: snacks.nvim
-  - Config: autoread enabled, snacks provider
+  - Config: autoread enabled, automatic file reload on edits
 
 ## Keymaps Reference
 
@@ -196,12 +200,13 @@ biome
 prettier
 oxlint
 tailwindcss
+vtsls  # Use vtsls instead of default tsgo
 ```
 
 **Format**:
 - Lines starting with `#` are comments
 - `theme=light` or `theme=dark` sets the color scheme
-- Tool names enable those tools: `biome`, `prettier`, `oxlint`, `eslint`, `oxfmt`, `tailwindcss`
+- Tool names enable those tools: `biome`, `prettier`, `oxlint`, `eslint`, `oxfmt`, `tailwindcss`, `vtsls`
 
 ## Maintenance Commands
 
@@ -267,6 +272,7 @@ tailwindcss
 - Expanded OpenCode keymaps
 - Added tailwind-highlight and oxlint (conditional)
 - Moved all keymaps to centralized keymaps.lua
+- Replaced vtsls with tsgo as default TypeScript LSP (use `vtsls` in .nvim.local to switch back)
 
 ---
 

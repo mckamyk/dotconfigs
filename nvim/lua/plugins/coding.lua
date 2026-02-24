@@ -204,11 +204,16 @@ return {
 
       local ensure_installed = {
         "lua_ls",
-        "vtsls",
         "solidity",
         "jsonls",
         "taplo",
       }
+
+      -- TypeScript LSP: tsgo (default) or vtsls (if .nvim.local has vtsls)
+      local use_vtsls = tools.vtsls
+      if use_vtsls then
+        table.insert(ensure_installed, "vtsls")
+      end
 
       if tools.biome or (not has_config_file) then
         table.insert(ensure_installed, "biome")
@@ -248,14 +253,31 @@ return {
         end
       end
 
-      -- Always-on LSPs
-      local always_on_lsps = { "lua_ls", "vtsls", "solidity", "jsonls", "taplo" }
+      -- Other always-on LSPs
+      local always_on_lsps = { "lua_ls", "solidity", "jsonls", "taplo" }
       for _, lsp in ipairs(always_on_lsps) do
         vim.lsp.config(lsp, {
           capabilities = capabilities,
           on_attach = on_attach,
         })
         vim.lsp.enable(lsp)
+      end
+
+      -- TypeScript LSP: tsgo (default) or vtsls (if .nvim.local has vtsls)
+      local use_vtsls = tools.vtsls
+      
+      if use_vtsls then
+        -- Use vtsls instead of tsgo
+        vim.lsp.config("vtsls", {
+          capabilities = capabilities,
+          on_attach = on_attach,
+        })
+        vim.lsp.enable("vtsls")
+      else
+        -- Use tsgo (TypeScript-Go) as default
+        require("tsgo").setup({
+          filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
+        })
       end
 
       -- gopls - filetype-specific
@@ -396,5 +418,12 @@ return {
         },
       })
     end,
+  },
+  -- TypeScript-Go LSP (default TypeScript LSP)
+  {
+    "josa42/nvim-tsgo",
+    dependencies = {
+      "neovim/nvim-lspconfig",
+    },
   },
 }

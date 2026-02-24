@@ -11,10 +11,6 @@ return {
 
       -- OpenCode configuration
       vim.g.opencode_opts = {
-        -- Use snacks for enhanced UI
-        provider = {
-          enabled = "snacks",
-        },
         -- Enable automatic file reload on edits
         events = {
           reload = true,
