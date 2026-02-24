@@ -114,12 +114,22 @@ return {
 		config = function()
 			require("nvim-treesitter").setup({
 				auto_install = true,
+				-- Use the lazy plugin directory where parsers are actually installed
+				install_dir = vim.fn.stdpath("data") .. "/lazy/nvim-treesitter/parser",
 			})
+			-- Register language mappings for TypeScript/React (main branch requires explicit registration)
+			vim.treesitter.language.register("typescript", { "typescript" })
+			vim.treesitter.language.register("tsx", { "typescriptreact" })
+			vim.treesitter.language.register("javascript", { "javascript" })
+			vim.treesitter.language.register("jsx", { "javascriptreact" })
 			-- Enable highlighting via autocmd (main branch API)
 			vim.api.nvim_create_autocmd("FileType", {
-				pattern = "*",
+				pattern = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
 				callback = function(args)
-					local ok = pcall(vim.treesitter.start, args.buf)
+					local ok, err = pcall(vim.treesitter.start, args.buf)
+					if not ok then
+						vim.notify("Treesitter failed for " .. vim.bo[args.buf].filetype .. ": " .. tostring(err), vim.log.levels.WARN)
+					end
 				end,
 			})
 		end,
