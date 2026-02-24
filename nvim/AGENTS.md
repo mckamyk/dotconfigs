@@ -1,15 +1,15 @@
 # Neovim Config Documentation (AGENTS.md)
 
-This document summarizes the reorganized Neovim configuration structure, established through conversation with the user. The config has been consolidated from 20+ individual plugin files into 4 logical groups for better maintainability.
+This document summarizes the reorganized Neovim configuration structure. The config has been consolidated into 4 logical plugin groups for better maintainability.
 
 ## Overview
 
 - **Structure**: 4 plugin categories + core files
 - **Principles**:
   - Aggressive lazy loading (preload TypeScript ecosystem)
-  - Conditional formatter loading based on project config files
-  - TypeScript-first optimization (99% of development)
-  - Centralized keymap management with plugin attribution
+  - Conditional formatter/loader loading based on project `.nvim.local` config files
+  - TypeScript-first optimization
+  - Centralized keymap management with plugin-specific comments
 - **Package Manager**: lazy.nvim
 - **Primary Language**: TypeScript/JavaScript with comprehensive tooling
 
@@ -39,166 +39,169 @@ This document summarizes the reorganized Neovim configuration structure, establi
 ### lua/options.lua
 - Contains only `vim.opt` and `vim.g` settings
 - No keymaps, commands, or plugin-specific code
-- Includes: termguicolors, expandtab, number, cursorline, etc.
+- Includes: termguicolors, expandtab, number, cursorline, autoread, etc.
 
 ### lua/keymaps.lua
 - All keymaps centralized for easy reference
-- Comments indicate plugin ownership: `-- LSP: hover`, `-- Telescope: find files`
-- Avoids overriding native keybinds without clear indication
-- Organized by category with section comments
+- Comments indicate plugin ownership
+- Organized by category: General, Telescope, Git, LSP, Conform, Neotree, Neocodeium, LazyGit, Tmux, OpenCode
+- Helper function `lsp_attached()` for conditional LSP keymaps
 
 ## Plugin Categories
 
 ### ui.lua
 **Purpose**: Visual appearance and UI enhancements
-**Plugins**: catppuccin (theme + auto-dark-mode), lualine, alpha (dashboard), snacks
-**Lazy Loading**: Theme loaded immediately, others on demand
+
+**Plugins**:
+- **catppuccin** (theme + transparent background) - loaded immediately, priority 1000
+- **auto-dark-mode.nvim** - automatic light/dark mode switching (conditional: only if no `.nvim.local` theme override)
+- **lualine.nvim** - status line with dracula theme
+- **alpha-nvim** - dashboard with custom header
+- **snacks.nvim** - UI components (input, picker, terminal) for OpenCode
+
+**Features**:
+- Loads theme override from `.nvim.local` (theme=light/dark)
+- Auto-dark-mode respects `.nvim.local` theme setting
 
 ### editor.lua
 **Purpose**: File navigation, search, git integration, and movement
-**Plugins**: telescope (+ui-select), neo-tree, gitsigns, lazygit, vim-tmux-navigator, neoscroll
-**Lazy Loading**: Aggressive - telescope on `<C-p>`, neotree on `<leader>e`, lazygit on `<leader>gg`
+
+**Plugins**:
+- **telescope.nvim** (+ plenary.nvim) - fuzzy finder
+  - `<C-p>`/`<leader>ff`: Find files
+  - `<leader>fg`: Live grep
+  - `<leader>fb`: Buffers
+  - `<leader>fh`: Help tags
+- **telescope-ui-select.nvim** - enhanced UI select dropdown
+- **neo-tree.nvim** - file explorer
+  - `<leader>e`: Filesystem tree (float)
+  - `<leader>r`: Document symbols
+  - `<leader>ge`: Git status tree
+  - Config: rounded borders, 90% height, 25% width
+- **gitsigns.nvim** - git integration
+- **lazygit.nvim** - lazygit terminal UI
+  - `<leader>gg`: Open LazyGit
+- **vim-tmux-navigator** - tmux navigation
+  - `<a-h>`, `<a-j>`, `<a-k>`, `<a-l>`: Navigate panes
+- **neoscroll.nvim** - smooth scrolling with quadratic easing
+
+**Lazy Loading**:
+- Telescope: `keys` (loads on keypress)
+- Neotree: `keys` (loads on keypress)
+- Lazygit: `cmd` and `keys`
+- Tmux-navigator: `cmd`
 
 ### coding.lua
 **Purpose**: Language support, completion, formatting, and development tools
-**Plugins**: treesitter, nvim-cmp (+cmp-nvim-lsp), conform, mason/mason-lspconfig/nvim-lspconfig, neocodeium, tailwind-tools, oxlint, nvim-autopairs, nvim-ts-autotag
-**Lazy Loading**: TypeScript ecosystem preloaded (treesitter, LSP, conform), others lazy
-**Conditional Loading**: Formatters only load when config files detected
+
+**Plugins**:
+- **nvim-treesitter** - syntax highlighting (main branch, auto_install)
+- **nvim-cmp** + **cmp-nvim-lsp** - auto completion with LSP source
+- **conform.nvim** - formatting
+- **mason.nvim** + **mason-lspconfig.nvim** + **nvim-lspconfig** - LSP management
+- **neocodeium** - AI completion (event: VeryLazy)
+- **tailwind-highlight.nvim** - Tailwind CSS color highlighting (conditional)
+- **nvim-oxlint** - oxlint integration (conditional)
+- **nvim-autopairs** - auto-close brackets (event: InsertEnter)
+- **nvim-ts-autotag** - auto-close/rename HTML tags
+
+**Conditional Loading via `.nvim.local`**:
+Project-level configuration file for tool selection:
+```
+# .nvim.local format:
+theme=dark          # or light
+oxfmt               # enable oxfmt formatter
+biome               # enable biome formatter/linter
+prettier            # enable prettier formatter
+oxlint              # enable oxlint linter
+eslint              # enable eslint
+tailwindcss         # enable tailwindcss LSP + highlighting
+```
+
+**Formatter Priority** (format-on-save):
+1. oxfmt (if specified)
+2. biome-check (if specified or no config file)
+3. prettier (if specified)
+4. LSP fallback
+
+**LSP Servers**:
+- Always enabled: lua_ls, vtsls, solidity, jsonls, taplo
+- Conditional: biome, eslint, tailwindcss, gopls
+- Tailwind v4 CSS config detection (auto-detects @import 'tailwindcss')
+
+**Diagnostics**:
+- Custom signs: 🔴 for ERROR, 🟡 for WARN
 
 ### tools.lua
 **Purpose**: Specialized development tools
-**Plugins**: opencode (AI assistant)
-**Lazy Loading**: As configured by plugin
 
-## Plugin Management
+**Plugins**:
+- **opencode.nvim** - OpenCode AI assistant
+  - Dependencies: snacks.nvim
+  - Config: autoread enabled, snacks provider
 
-### Adding New Plugins
+## Keymaps Reference
 
-1. **Determine Category**:
-   - UI/visual: `ui.lua`
-   - Navigation/search/git: `editor.lua`
-   - Language/completion/formatting: `coding.lua`
-   - AI/specialized: `tools.lua`
+### General
+- `<leader>w` - Save file
+- `<leader>q` - Quit
+- `<leader>Q` - Quit all
+- `<leader>h` / `<leader>l` - Previous/next tab
+- `<leader>bo` - Close other tabs
 
-2. **Add to Appropriate File**:
-   ```lua
-   -- Example: Add a new formatter to coding.lua
-   {
-     "new/formatter.nvim",
-     config = function()
-       require("formatter").setup()
-     end,
-   },
-   ```
+### LSP (conditional: only when LSP attached)
+- `K` / `<leader>t` - Hover documentation
+- `gd` - Go to definition (opens in new tab if different file)
+- `gr` - Show references
+- `<leader>a` - Code actions
+- `<leader>n` / `<leader>m` - Next/previous diagnostic
+- `<leader>si` - LSP info
 
-3. **Lazy Loading**:
-   - Use `event`, `cmd`, `keys` for aggressive loading
-   - Preload TypeScript-related plugins
-   - Example:
-   ```lua
-   {
-     "new/plugin",
-     keys = { { "<leader>np", "<cmd>NewPlugin<cr>", desc = "New plugin" } },
-   }
-   ```
+### Formatting
+- `<leader>cf` - Format with conform
 
-4. **Dependencies**:
-   - List in `dependencies` array
-   - Ensure compatibility with existing plugins
+### Neocodeium (insert mode)
+- `<Tab>` - Accept suggestion
+- `<C-j>` - Next suggestion
+- `<C-k>` - Previous suggestion
+- `<C-h>` - Clear suggestion
 
-5. **Testing**:
-   - Run `:Lazy check` for issues
-   - Run `:checkhealth` for health checks
-   - Test functionality in a TypeScript project
+### OpenCode
+- `<leader>oa` - Ask about current file
+- `<leader>ox` - Execute action
+- `<leader>op` - Add to prompt
+- `<leader>ot` / `<C-o>t` (terminal) - Toggle terminal
+- `<leader>on` - New session
+- `<leader>ol` - List sessions
+- `<leader>os` - Share session
+- `<leader>oi` - Interrupt session
+- `<leader>oc` - Compact session
+- `<leader>ou` / `<leader>od` - Scroll up/down
+- `<leader>oU` / `<leader>oD` - Jump to first/last message
+- `<leader>oe` - Explain code
+- `<leader>of` - Fix diagnostics
+- `<leader>ov` - Review code
+- `<leader>om` - Document code
+- `<leader>oT` - Add tests
+- `<leader>oO` - Optimize code
 
-### Formatting/Linting Setup
+## Project Configuration (.nvim.local)
 
-**Primary Tool**: conform.nvim (replaced none-ls for modern maintenance)
-**Conditional Loading**:
-- **Biome**: Only when `biome.json` exists
-- **Prettier**: Only when `.prettierrc*` or `prettier.config.*` exist
-- **ESLint**: Only when oxlint config NOT found (`.oxlintrc*`, `oxlint.json`)
+Create a `.nvim.local` file in project root to customize tools:
 
-**Priorities** (format-on-save):
-1. biome (if available)
-2. prettier (if available)
-3. LSP fallback
-
-**Configuration**: See `coding.lua` conform setup
-
-### LSP Configuration
-
-**Tools**: mason + mason-lspconfig + nvim-lspconfig
-**Conditional Servers**:
-- Always: lua_ls, vtsls, tailwindcss, solidity, biome (if config), jsonls, taplo
-- Conditional: eslint (only without oxlint), gopls
-
-**Preloaded**: TypeScript ecosystem for performance
-**Keymaps**: Moved to `lua/keymaps.lua` (LSP section)
-
-### Keymaps Organization
-
-- **Centralized**: All in `lua/keymaps.lua`
-- **Commented**: `-- LSP: hover`, `-- Telescope: find files`, etc.
-- **Patterns**:
-  - `<leader>`: Custom commands
-  - `<C->`: Navigation (h/j/k/l for movement)
-  - `<leader>n/m`: LSP diagnostics next/prev
-- **Examples**:
-  ```lua
-  -- General
-  vim.keymap.set("n", "<leader>w", ":w<cr>")
-
-  -- Telescope
-  vim.keymap.set("n", "<C-p>", function() require("telescope.builtin").find_files() end, { desc = "Find files" })
-
-  -- LSP
-  vim.keymap.set("n", "gd", goto_definition_function, { buffer = true })
-  ```
-
-## Examples
-
-### Adding a New Formatter
-```lua
--- In coding.lua, within conform setup
-formatters = {
-  -- Existing...
-  new_formatter = {
-    condition = function()
-      return vim.fn.glob(".newformatterrc") ~= ""
-    end,
-  },
-},
-formatters_by_ft = {
-  -- Existing...
-  newlang = { "new_formatter" },
-},
+```bash
+# Example .nvim.local
+theme=dark
+biome
+prettier
+oxlint
+tailwindcss
 ```
 
-### Adding a New LSP Server
-```lua
--- In coding.lua LSP section
-vim.lsp.config("newlsp", {
-  capabilities = capabilities,
-  on_attach = on_attach,
-})
-vim.lsp.enable("newlsp")
--- Add to mason ensure_installed if needed
-```
-
-### Adding a New Plugin
-```lua
--- In appropriate category file
-{
-  "author/new-plugin",
-  keys = { { "<leader>np", "<cmd>NewPlugin<cr>", desc = "New plugin" } },
-  config = function()
-    require("new-plugin").setup()
-  end,
-},
--- Add keymap to lua/keymaps.lua with comment
-vim.keymap.set("n", "<leader>np", "<cmd>NewPlugin<cr>")
-```
+**Format**:
+- Lines starting with `#` are comments
+- `theme=light` or `theme=dark` sets the color scheme
+- Tool names enable those tools: `biome`, `prettier`, `oxlint`, `eslint`, `oxfmt`, `tailwindcss`
 
 ## Maintenance Commands
 
@@ -208,6 +211,8 @@ vim.keymap.set("n", "<leader>np", "<cmd>NewPlugin<cr>")
 - **Check health**: `:checkhealth`
 - **View logs**: `:Lazy log`
 - **Sync lockfile**: `:Lazy sync`
+- **Check LSP status**: `:LspInfo`
+- **Check formatters**: `:ConformInfo`
 
 ## Troubleshooting
 
@@ -220,26 +225,30 @@ vim.keymap.set("n", "<leader>np", "<cmd>NewPlugin<cr>")
 - Ensure plugin is loaded when keymap is used
 - Check for conflicts in `lua/keymaps.lua`
 - Verify buffer-local vs global keymaps
+- Use `:verbose map <key>` to debug
 
 ### LSP Not Starting
 - Check if server is in mason (`:Mason`)
 - Verify filetypes match
 - Check LSP logs: `:LspInfo`
+- Check if tool is enabled in `.nvim.local`
 
 ### Formatting Not Working
 - Check if config files exist for conditional formatters
 - Verify filetype in `formatters_by_ft`
 - Run `:ConformInfo` to see available formatters
+- Check `.nvim.local` tool configuration
+
+### Theme Issues
+- Check `.nvim.local` for theme override
+- Verify auto-dark-mode loads (only when no override)
+- Check catppuccin setup
 
 ### Performance Issues
 - Profile with `:Lazy profile`
 - Check for eager loading of heavy plugins
 - Review conditional loading logic
-
-### TypeScript-Specific Issues
-- Ensure treesitter, LSP, and conform are preloaded
-- Check TypeScript config files
-- Verify mason has correct servers
+- TypeScript ecosystem is preloaded for performance
 
 ## Future Maintenance
 
@@ -247,5 +256,47 @@ vim.keymap.set("n", "<leader>np", "<cmd>NewPlugin<cr>")
 - Regularly update plugins and review for deprecated ones
 - Test major changes in TypeScript projects first
 - Update this AGENTS.md when structure changes
+- Document new `.nvim.local` tools when added
 
-For questions about specific implementations, refer to the original conversation that established this structure.
+## Recent Changes
+
+- Replaced none-ls with conform.nvim for formatting
+- Added `.nvim.local` project configuration support
+- Added telescope-ui-select extension
+- Added vim-tmux-navigator and neoscroll for navigation
+- Expanded OpenCode keymaps
+- Added tailwind-highlight and oxlint (conditional)
+- Moved all keymaps to centralized keymaps.lua
+
+---
+
+## Document Version
+
+**Commit Hash**: `9256841b8134d82b1e2a69f558ef3b2f929e2a79`
+
+### How to Update This Document
+
+To update AGENTS.md in the future:
+
+1. Get the current commit hash:
+   ```bash
+   git rev-parse HEAD
+   ```
+
+2. Compare changes since this document version:
+   ```bash
+   git diff 9256841b8134d82b1e2a69f558ef3b2f929e2a79..HEAD -- lua/ init.lua
+   ```
+
+3. Review all plugin files and keymaps to identify changes:
+   - `lua/plugins/ui.lua`
+   - `lua/plugins/editor.lua`
+   - `lua/plugins/coding.lua`
+   - `lua/plugins/tools.lua`
+   - `lua/keymaps.lua`
+
+4. Update the relevant sections in this document
+
+5. Update the commit hash at the bottom to the new HEAD
+
+For questions about specific implementations, refer to the conversation that established this structure.
