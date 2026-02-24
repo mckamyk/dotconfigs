@@ -104,7 +104,7 @@ This document summarizes the reorganized Neovim configuration structure. The con
 - **nvim-oxlint** - oxlint integration (conditional)
 - **nvim-autopairs** - auto-close brackets (event: InsertEnter)
   - **nvim-ts-autotag** - auto-close/rename HTML tags
-  - **nvim-tsgo** - TypeScript-Go LSP (default TypeScript LSP, replaces vtsls)
+  - **tsgo** - TypeScript-Go LSP (default TypeScript LSP via nvim-lspconfig, replaces vtsls)
 
 **Conditional Loading via `.nvim.local`**:
 Project-level configuration file for tool selection:
@@ -128,7 +128,7 @@ vtsls               # use vtsls instead of tsgo (default TypeScript LSP)
 
 **LSP Servers**:
 - Always enabled: lua_ls, solidity, jsonls, taplo
-- Default TypeScript: tsgo (TypeScript-Go, via nvim-tsgo plugin)
+- Default TypeScript: tsgo (TypeScript-Go, via nvim-lspconfig)
 - Optional: vtsls (use `vtsls` in .nvim.local to switch from tsgo)
 - Conditional: biome, eslint, tailwindcss, gopls
 - Tailwind v4 CSS config detection (auto-detects @import 'tailwindcss')
