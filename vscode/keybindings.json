@@ -1,0 +1,158 @@
+[
+  // General
+  {
+    "key": "ctrl+s",
+    "command": "workbench.action.files.save",
+    "when": "vim.mode == 'Normal' && editorTextFocus || vim.mode == 'Insert' && editorTextFocus"
+  },
+  {
+    "key": "ctrl+w",
+    "command": "workbench.action.closeActiveEditor",
+    "when": "vim.mode == 'Normal' && editorTextFocus"
+  },
+  {
+    "key": "ctrl+k ctrl+w",
+    "command": "workbench.action.closeAllEditors",
+    "when": "vim.mode == 'Normal' && editorTextFocus"
+  },
+
+  // Tab navigation (all editors)
+  {
+    "key": "ctrl+pageup",
+    "command": "workbench.action.previousEditor",
+    "when": "vim.mode == 'Normal' && editorTextFocus"
+  },
+  {
+    "key": "ctrl+pagedown",
+    "command": "workbench.action.nextEditor",
+    "when": "vim.mode == 'Normal' && editorTextFocus"
+  },
+
+  // Quick Open / Find Files
+  {
+    "key": "ctrl+p",
+    "command": "workbench.action.quickOpen",
+    "when": "vim.mode == 'Normal' && editorTextFocus || !editorTextFocus"
+  },
+
+  // Workspace search
+  {
+    "key": "ctrl+shift+f",
+    "command": "workbench.action.findInFiles",
+    "when": "vim.mode == 'Normal' && editorTextFocus || !editorTextFocus"
+  },
+
+  // Editor switcher (buffer list)
+  {
+    "key": "ctrl+tab",
+    "command": "workbench.action.quickOpenNavigateNextInFilePicker",
+    "when": "vim.mode == 'Normal' && editorTextFocus || !editorTextFocus"
+  },
+
+  // File explorer
+  {
+    "key": "ctrl+shift+e",
+    "command": "workbench.view.explorer",
+    "when": "vim.mode == 'Normal' && editorTextFocus || !editorTextFocus"
+  },
+  {
+    "key": "ctrl+shift+e",
+    "command": "workbench.action.focusSideBar",
+    "when": "sideBarVisible && !editorTextFocus"
+  },
+
+  // Git/Source Control
+  {
+    "key": "ctrl+shift+g",
+    "command": "workbench.view.scm",
+    "when": "vim.mode == 'Normal' && editorTextFocus || !editorTextFocus"
+  },
+
+  // LazyGit extension
+  {
+    "key": "ctrl+shift+g g",
+    "command": "lazygit-vscode.toggle",
+    "when": "vim.mode == 'Normal' && editorTextFocus || !editorTextFocus"
+  },
+
+  // Terminal
+  {
+    "key": "ctrl+`",
+    "command": "workbench.action.terminal.toggleTerminal",
+    "when": "vim.mode == 'Normal' && editorTextFocus || terminalFocus || !editorTextFocus"
+  },
+
+  // Panel navigation (Alt + hjkl)
+  {
+    "key": "alt+h",
+    "command": "workbench.action.navigateLeft",
+    "when": "editorTextFocus && vim.mode == 'Normal' || terminalFocus"
+  },
+  {
+    "key": "alt+j",
+    "command": "workbench.action.navigateDown",
+    "when": "editorTextFocus && vim.mode == 'Normal' || terminalFocus"
+  },
+  {
+    "key": "alt+k",
+    "command": "workbench.action.navigateUp",
+    "when": "editorTextFocus && vim.mode == 'Normal' || terminalFocus"
+  },
+  {
+    "key": "alt+l",
+    "command": "workbench.action.navigateRight",
+    "when": "editorTextFocus && vim.mode == 'Normal' || terminalFocus"
+  },
+
+  // LSP / Go to definition
+  {
+    "key": "f12",
+    "command": "editor.action.revealDefinition",
+    "when": "editorHasDefinitionProvider && editorTextFocus && vim.mode == 'Normal'"
+  },
+  {
+    "key": "shift+f12",
+    "command": "editor.action.goToReferences",
+    "when": "editorHasReferenceProvider && editorTextFocus && vim.mode == 'Normal'"
+  },
+
+  // Diagnostics navigation
+  {
+    "key": "f8",
+    "command": "editor.action.marker.next",
+    "when": "editorTextFocus && vim.mode == 'Normal'"
+  },
+  {
+    "key": "shift+f8",
+    "command": "editor.action.marker.prev",
+    "when": "editorTextFocus && vim.mode == 'Normal'"
+  },
+
+  // Formatting
+  {
+    "key": "shift+alt+f",
+    "command": "editor.action.formatDocument",
+    "when": "editorTextFocus && !editorReadonly && vim.mode == 'Normal'"
+  },
+
+  // LSP Hover
+  {
+    "key": "ctrl+k ctrl+i",
+    "command": "editor.action.showHover",
+    "when": "editorTextFocus && vim.mode == 'Normal'"
+  },
+
+  // Code actions
+  {
+    "key": "ctrl+.",
+    "command": "editor.action.quickFix",
+    "when": "editorHasCodeActionsProvider && editorTextFocus && !editorReadonly && vim.mode == 'Normal'"
+  },
+
+  // LSP Info
+  {
+    "key": "ctrl+shift+i",
+    "command": "workbench.action.output.show.lsp",
+    "when": "vim.mode == 'Normal' && editorTextFocus"
+  }
+]
