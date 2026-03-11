@@ -8,10 +8,11 @@ vim.keymap.set("n", "<leader>w", ":w<cr>")
 vim.keymap.set("n", "<leader>q", ":q<cr>")
 vim.keymap.set("n", "<leader>Q", ":qa<cr>")
 
--- Tab navigation
-vim.keymap.set("n", "<leader>h", ":-tabnext<cr>")
-vim.keymap.set("n", "<leader>l", ":+tabnext<cr>")
-vim.keymap.set("n", "<leader>bo", ":tabo<cr>")
+-- Buffer navigation (works with bufferline)
+vim.keymap.set("n", "<leader>h", "<cmd>BufferLineCyclePrev<cr>", { desc = "Previous buffer" })
+vim.keymap.set("n", "<leader>l", "<cmd>BufferLineCycleNext<cr>", { desc = "Next buffer" })
+vim.keymap.set("n", "<leader>bo", "<cmd>BufferLineCloseOthers<cr>", { desc = "Close other buffers" })
+vim.keymap.set("n", "<leader>bd", "<cmd>bdelete<cr>", { desc = "Close current buffer" })
 
 -- Telescope
 vim.keymap.set("n", "<C-p>", function()
@@ -96,10 +97,10 @@ vim.keymap.set("n", "<leader>n", vim.diagnostic.goto_next, {})
 vim.keymap.set("n", "<leader>m", vim.diagnostic.goto_prev, {})
 vim.keymap.set("n", "<leader>si", "<cmd>LspInfo<CR>", {})
 
--- Conform
+-- LSP Formatting
 vim.keymap.set("n", "<leader>cf", function()
-	require("conform").format()
-end, {})
+	vim.lsp.buf.format({ async = true })
+end, { desc = "Format with LSP" })
 
 -- Neotree
 vim.keymap.set("n", "<leader>e", function()

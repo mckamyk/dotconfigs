@@ -21,3 +21,11 @@ vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI", "FocusGai
   pattern = "*",
   command = "if mode() != 'c' | checktime | endif",
 })
+
+-- Format on save (synchronous)
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*",
+  callback = function()
+    vim.lsp.buf.format({ async = false })
+  end,
+})

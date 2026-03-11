@@ -1,36 +1,5 @@
--- Helper to get project root (duplicated from coding.lua to avoid circular deps)
-local function get_project_root()
-	local bufname = vim.api.nvim_buf_get_name(0)
-	if bufname == "" then
-		bufname = vim.fn.getcwd()
-	end
-	return vim.fs.root(bufname, { "pnpm-workspace.yaml", "turbo.json" })
-		or vim.fs.root(bufname, { "tailwind.config.js", "tailwind.config.ts", "postcss.config.js", "package.json" })
-		or vim.fn.getcwd()
-end
-
--- Helper to load theme from .nvim.local
-local function load_theme_override()
-	local root = get_project_root()
-	local config_file = root .. "/.nvim.local"
-	if vim.fn.filereadable(config_file) ~= 1 then
-		return nil
-	end
-
-	local lines = vim.fn.readfile(config_file)
-	for _, line in ipairs(lines) do
-		line = vim.trim(line)
-		if line ~= "" and not line:match("^#") then
-			local theme_value = line:match("^theme=(.+)")
-			if theme_value and (theme_value == "light" or theme_value == "dark") then
-				return theme_value
-			elseif line == "light" or line == "dark" then
-				return line
-			end
-		end
-	end
-	return nil
-end
+-- Load shared utilities
+local utils = require("utils")
 
 return {
 	-- Theme and colorscheme
@@ -45,7 +14,7 @@ return {
 			})
 
 			-- Load theme override from .nvim.local
-			local theme_override = load_theme_override()
+			local theme_override = utils.load_theme_override()
 			vim.g.nvim_local_theme = theme_override
 
 			-- Set theme based on override or default to dark
@@ -66,7 +35,7 @@ return {
 		lazy = false,
 		cond = function()
 			-- Only load if no theme override is set
-			return load_theme_override() == nil
+			return utils.load_theme_override() == nil
 		end,
 		opts = {
 			set_dark_mode = function()
@@ -130,6 +99,34 @@ return {
 			input = { enabled = true },
 			picker = { enabled = true },
 			terminal = { enabled = true },
+		},
+	},
+	-- Buffer line (tab-like interface)
+	{
+		"akinsho/bufferline.nvim",
+		version = "*",
+		dependencies = "nvim-tree/nvim-web-devicons",
+		opts = {
+			options = {
+				mode = "buffers",
+				separator_style = "slant",
+				always_show_bufferline = true,
+				show_buffer_close_icons = true,
+				show_close_icon = false,
+				diagnostics = "nvim_lsp",
+				diagnostics_indicator = function(count, level)
+					local icon = level:match("error") and "🔴" or "🟡"
+					return " " .. icon .. " " .. count
+				end,
+				offsets = {
+					{
+						filetype = "neo-tree",
+						text = "File Explorer",
+						highlight = "Directory",
+						separator = true,
+					},
+				},
+			},
 		},
 	},
 }
