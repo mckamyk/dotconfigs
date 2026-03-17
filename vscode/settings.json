@@ -54,6 +54,18 @@
       "commands": ["workbench.action.nextEditor"]
     },
     {
+      "before": ["leader", "b", "o"],
+      "commands": ["workbench.action.closeOtherEditors"]
+    },
+    {
+      "before": ["leader", "b", "d"],
+      "commands": ["workbench.action.closeActiveEditor"]
+    },
+    {
+      "before": ["leader", "r"],
+      "commands": ["outline.focus"]
+    },
+    {
       "before": ["leader", "f", "f"],
       "commands": ["workbench.action.quickOpen"]
     },
