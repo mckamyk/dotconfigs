@@ -9,8 +9,6 @@ quick-terminal-size = 800px
 custom-shader = shaders/cursor_warp.glsl
 
 keybind = global:cmd+'=toggle_quick_terminal
-keybind = cmd+h=text:\x1bh
-keybind = cmd+j=text:\x1bj
-keybind = cmd+k=text:\x1bk
-keybind = cmd+l=text:\x1bl
+
+keybind = cmd+h=unbind
 keybind = cmd+t=new_tab
