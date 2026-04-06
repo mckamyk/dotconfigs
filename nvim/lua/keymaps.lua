@@ -5,13 +5,15 @@ end
 
 -- General keymaps
 vim.keymap.set("n", "<leader>w", ":w<cr>")
-vim.keymap.set("n", "<leader>q", ":q<cr>")
-vim.keymap.set("n", "<leader>Q", ":qa<cr>")
+vim.keymap.set("n", "<leader>q", ":bdelete<cr>", { desc = "Close current buffer" })
+vim.keymap.set("n", "<leader>Q", ":bufdo bdelete | qa<cr>", { desc = "Close all buffers and quit" })
 
--- Buffer navigation (works with bufferline)
-vim.keymap.set("n", "<leader>h", "<cmd>BufferLineCyclePrev<cr>", { desc = "Previous buffer" })
-vim.keymap.set("n", "<leader>l", "<cmd>BufferLineCycleNext<cr>", { desc = "Next buffer" })
-vim.keymap.set("n", "<leader>bo", "<cmd>BufferLineCloseOthers<cr>", { desc = "Close other buffers" })
+-- Tab navigation (Vim native tabs)
+vim.keymap.set("n", "<leader>h", "gT", { desc = "Previous tab" })
+vim.keymap.set("n", "<leader>l", "gt", { desc = "Next tab" })
+vim.keymap.set("n", "<leader>tn", "<cmd>tabnew<cr>", { desc = "New tab" })
+vim.keymap.set("n", "<leader>tc", "<cmd>tabclose<cr>", { desc = "Close current tab" })
+vim.keymap.set("n", "<leader>bo", "<cmd>tabonly<cr>", { desc = "Close other tabs" })
 vim.keymap.set("n", "<leader>bd", "<cmd>bdelete<cr>", { desc = "Close current buffer" })
 
 -- Telescope
@@ -120,7 +122,7 @@ vim.keymap.set("n", "<leader>r", function()
 end, { silent = true })
 
 -- Neocodeium
-vim.keymap.set("i", "<Tab>", function()
+vim.keymap.set("i", "<C-l>", function()
 	require("neocodeium").accept()
 end)
 vim.keymap.set("i", "<C-j>", function()

@@ -23,7 +23,7 @@ This document summarizes the reorganized Neovim configuration structure. The con
 │   ├── utils.lua            # Shared utility functions (theme loader)
 │   └── plugins/
 │       ├── ui.lua           # Theme, status line, dashboard, snacks, bufferline
-│       ├── editor.lua       # Fuzzy finder, file explorer, git, navigation, TODOs, indent guides
+│       ├── editor.lua       # Fuzzy finder, file explorer, git, navigation, indent guides
 │       ├── coding.lua       # Syntax, completion, LSP, tools
 │       └── tools.lua        # Specialized tools (OpenCode AI)
 ├── .luarc.json             # Lua LSP configuration
@@ -95,10 +95,6 @@ This document summarizes the reorganized Neovim configuration structure. The con
 - **vim-tmux-navigator** - tmux navigation
   - `<a-h>`, `<a-j>`, `<a-k>`, `<a-l>`: Navigate panes
 - **neoscroll.nvim** - smooth scrolling with quadratic easing
-- **todo-comments.nvim** - TODO/FIXME/HACK/NOTE highlighting and navigation
-  - `<leader>td`: List TODOs
-  - `<leader>tn`: Next TODO
-  - `<leader>tp`: Previous TODO
 - **indent-blankline.nvim** - indent guides (vertical lines showing indentation levels)
 
 **Lazy Loading**:
@@ -180,12 +176,6 @@ This document summarizes the reorganized Neovim configuration structure. The con
 - `<leader>h` / `<leader>l` - Navigate buffers left/right
 - `<leader>bo` - Close all other buffers
 - `<leader>bd` - Delete current buffer
-
-### TODO Comments
-
-- `<leader>td` - List all TODOs
-- `<leader>tn` - Jump to next TODO
-- `<leader>tp` - Jump to previous TODO
 
 ### Neocodeium (insert mode)
 
@@ -298,7 +288,6 @@ theme=dark
 - .nvim.local now only supports theme configuration (light/dark)
 - **Added format-on-save** (synchronous) for all files
 - **Added indent-blankline.nvim** for visual indent guides
-- **Added todo-comments.nvim** for TODO/FIXME/HACK/NOTE highlighting
 - **Added bufferline.nvim** for tab-like buffer bar
 - **Created lua/utils.lua** for shared theme loading (deduplicated from ui.lua and coding.lua)
 - **Fixed duplicate web-devicons** dependency in neo-tree

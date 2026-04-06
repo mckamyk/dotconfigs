@@ -77,10 +77,9 @@ return {
 					"taplo",
 					"tsgo",
 					"oxlint",
-					"oxfmt",
-					"tailwindcss",
-				},
-			})
+				"oxfmt",
+			},
+		})
 		end,
 	},
 	{
@@ -88,23 +87,11 @@ return {
 		config = function()
 			local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-			local on_attach = function(client, bufnr)
-				-- Tailwind highlight setup
-				if client.name == "tailwindcss" then
-					require("tailwind-highlight").setup(client, bufnr, {
-						single_column = false,
-						debounce = 200,
-						mode = "background",
-					})
-				end
-			end
-
 			-- Always-on LSPs
 			local always_on_lsps = { "lua_ls", "solidity", "jsonls", "taplo" }
 			for _, lsp in ipairs(always_on_lsps) do
 				vim.lsp.config(lsp, {
 					capabilities = capabilities,
-					on_attach = on_attach,
 				})
 				vim.lsp.enable(lsp)
 			end
@@ -112,14 +99,12 @@ return {
 			-- TypeScript LSP: tsgo (always enabled)
 			vim.lsp.config("tsgo", {
 				capabilities = capabilities,
-				on_attach = on_attach,
 			})
 			vim.lsp.enable("tsgo")
 
 			-- gopls - filetype-specific
 			vim.lsp.config("gopls", {
 				capabilities = capabilities,
-				on_attach = on_attach,
 				filetypes = { "go", "gomod", "gowork", "gotmpl" },
 			})
 			vim.lsp.enable("gopls")
@@ -129,76 +114,6 @@ return {
 
 			-- oxfmt - formatting for JS/TS
 			vim.lsp.enable("oxfmt")
-
-			-- tailwindcss - CSS completion (filetype-restricted)
-			-- Helper to find Tailwind v4 CSS config file
-			local function find_tw4_config(root)
-				local candidates = {
-					"packages/ui/src/globals.css",
-					"src/styles.css",
-					"src/globals.css",
-					"src/app.css",
-					"app/globals.css",
-					"styles/globals.css",
-				}
-				for _, candidate in ipairs(candidates) do
-					local path = root .. "/" .. candidate
-					if vim.fn.filereadable(path) == 1 then
-						local content = vim.fn.readfile(path, "", 10)
-						for _, line in ipairs(content) do
-							if line:match("@import%s+[%\"']tailwindcss[%\"']") then
-								return candidate
-							end
-						end
-					end
-				end
-				return nil
-			end
-
-			vim.lsp.config("tailwindcss", {
-				capabilities = capabilities,
-				on_attach = on_attach,
-				filetypes = {
-					"html",
-					"css",
-					"scss",
-					"sass",
-					"less",
-					"javascript",
-					"javascriptreact",
-					"typescript",
-					"typescriptreact",
-				},
-				root_dir = function(bufnr, on_dir)
-					local bufname = vim.api.nvim_buf_get_name(bufnr)
-					local root = vim.fs.root(bufname, { "pnpm-workspace.yaml", "turbo.json" })
-						or vim.fs.root(
-							bufname,
-							{ "tailwind.config.js", "tailwind.config.ts", "postcss.config.js", "package.json" }
-						)
-					if root then
-						local tw4_config = find_tw4_config(root)
-						if tw4_config then
-							vim.g.tailwind_v4_config = vim.g.tailwind_v4_config or {}
-							vim.g.tailwind_v4_config[root] = tw4_config
-						end
-						on_dir(root)
-					end
-				end,
-				settings = {
-					tailwindCSS = {
-						experimental = {},
-					},
-				},
-				on_init = function(client)
-					local root = client.root_dir
-					if root and vim.g.tailwind_v4_config and vim.g.tailwind_v4_config[root] then
-						client.settings.tailwindCSS.experimental.configFile = vim.g.tailwind_v4_config[root]
-					end
-					return true
-				end,
-			})
-			vim.lsp.enable("tailwindcss")
 
 			vim.diagnostic.config({
 				signs = {
@@ -218,13 +133,6 @@ return {
 			local neocodeium = require("neocodeium")
 			neocodeium.setup()
 		end,
-	},
-	-- Tailwind tools - always enabled
-	{
-		"princejoogie/tailwind-highlight.nvim",
-		dependencies = {
-			"neovim/nvim-lspconfig",
-		},
 	},
 	-- Auto pairs and autotag
 	{
