@@ -3,8 +3,12 @@ theme = light:Catppuccin Latte,dark:Catppuccin Macchiato
 background-opacity = 0.85
 background-blur = true
 macos-titlebar-style = tabs
+
+# Clipboard over SSH (OSC 52)
+clipboard-read = allow
+clipboard-write = allow
 cursor-style = block
-shell-integration-features = no-cursor
+shell-integration-features = no-cursor,ssh-terminfo,ssh-env
 quick-terminal-size = 800px
 custom-shader = shaders/cursor_warp.glsl
 
