@@ -1,0 +1,1 @@
+source $(grok completions fish)
